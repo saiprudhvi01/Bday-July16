@@ -1,697 +1,475 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Happy Birthday!</title>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Inter:wght@300;400&display=swap');
-
-    *,
-    *::before,
-    *::after {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body {
+      width: 100%; height: 100%;
+      background: #0a0010;
+      overflow: hidden;
+      font-family: 'Georgia', serif;
     }
-
-    :root {
-      --gold: #F5C842;
-      --rose: #E8637A;
-      --violet: #9B6FD8;
-      --bg: #0D0D14;
-      --text: #F0ECE8;
-    }
-
-    html,
-    body {
-      width: 100%;
-      height: 100%;
-      background: var(--bg);
-      color: var(--text);
-      font-family: 'Inter', sans-serif;
-      overflow-x: hidden;
-      overflow-y: hidden;
-    }
-
-    #background-photo {
-      position: fixed;
-      inset: 0;
+    #app {
+      position: relative;
       width: 100vw;
-      height: 100%;
+      height: 100vh;
       height: 100dvh;
-      background-image: url('photo.jpeg');
-      background-size: contain;
-      background-position: center;
-      background-repeat: no-repeat;
-      background-color: var(--bg);
+      overflow: hidden;
+    }
+
+    /* Photo revealed behind the cloth */
+    #photo-bg {
+      position: absolute;
+      inset: 0;
+      background: url('photo.jpeg') center/cover no-repeat;
       z-index: 0;
-      filter: none;
-      transition: filter 2.5s cubic-bezier(0.22, 1, 0.36, 1);
     }
 
-    #background-photo.revealed {
-      filter: none;
-    }
-
-    #stage {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-      min-height: 100dvh;
-      padding: 2rem 1rem 4rem;
-      gap: 2.5rem;
-      position: relative;
+    /* Cloth canvas sits on top */
+    #cloth-canvas {
+      position: absolute;
+      inset: 0;
       z-index: 2;
+      cursor: crosshair;
+      touch-action: none;
     }
 
-    #sampler {
-      display: none;
-    }
-
-    /* Point 11: Camera zoom wrapper */
-    #mosaic-wrap {
-      position: relative;
-      display: inline-block;
-      max-width: calc(100vw - 2rem);
-      border-radius: 4px;
-      box-shadow: 0 0 80px rgba(245, 200, 66, 0.12), 0 0 0 1px rgba(255, 255, 255, 0.06);
-      transform: scale(1);
-      transition: transform 0.8s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.5s ease;
-    }
-
-    #mosaic-wrap.zoomed {
-      transform: scale(1.04);
-    }
-
-    /* Point 4: Perspective */
-    #grid {
-      display: grid;
-      gap: 2px;
-      background: transparent;
-      perspective: 900px;
-      max-width: 100%;
-      /* High-end 3D depth */
-    }
-
-    /* Point 2, 7, 14: GPU Optimization and Tile defaults */
-    .tile {
-      width: 100%;
-      aspect-ratio: 1;
-      border-radius: 2px;
-      transform-origin: bottom center;
-      opacity: 1;
-      z-index: 5;
-
-      /* GPU optimizations */
-      transform-style: preserve-3d;
-      backface-visibility: hidden;
-      contain: layout paint;
-      will-change: transform, box-shadow, opacity;
-      transform: translateZ(0);
-      /* Force hardware accel */
-    }
-
-    /* Point 2, 3: Heavy keyframe animation with overshoot and shadow */
-    @keyframes dominoFall {
-      0% {
-        transform: rotateX(0deg) translateY(0) scale(1) translateZ(0);
-        box-shadow: 0 0 0 rgba(0, 0, 0, 0);
-        opacity: 1;
-      }
-
-      75% {
-        transform: rotateX(105deg) translateY(30%) scale(0.97) translateZ(0);
-        box-shadow: 0 15px 20px rgba(0, 0, 0, 0.4);
-        opacity: 0.8;
-      }
-
-      90% {
-        transform: rotateX(88deg) translateY(38%) scale(0.965) translateZ(0);
-        box-shadow: 0 20px 25px rgba(0, 0, 0, 0.35);
-        opacity: 0.2;
-      }
-
-      100% {
-        transform: rotateX(90deg) translateY(40%) scale(0.96) translateZ(0);
-        box-shadow: 0 25px 30px rgba(0, 0, 0, 0.35);
-        opacity: 0;
-      }
-    }
-
-    .tile.fallen {
-      animation: dominoFall 0.55s cubic-bezier(0.25, 0.8, 0.25, 1) forwards;
+    /* Confetti above everything */
+    #confetti-canvas {
+      position: absolute;
+      inset: 0;
+      z-index: 3;
       pointer-events: none;
+    }
+
+    #hint {
+      position: absolute;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      color: rgba(255,255,255,0.8);
+      font-size: 14px;
+      background: rgba(0,0,0,0.45);
+      padding: 7px 18px;
+      border-radius: 30px;
+      letter-spacing: 0.06em;
+      z-index: 5;
+      pointer-events: none;
+      transition: opacity 0.6s ease;
     }
 
     #replay {
-      margin-top: 0.5rem;
-      padding: 0.6rem 2rem;
-      border: 1px solid rgba(245, 200, 66, 0.35);
+      position: absolute;
+      bottom: 20px;
+      right: 20px;
+      padding: 7px 20px;
+      border: 1px solid rgba(245, 200, 66, 0.5);
       background: transparent;
-      color: var(--gold);
-      border-radius: 99px;
+      color: #F5C842;
+      border-radius: 30px;
       cursor: pointer;
-      font-size: 0.82rem;
-      letter-spacing: 0.14em;
+      font-size: 13px;
+      letter-spacing: 0.12em;
       text-transform: uppercase;
       opacity: 0;
-      transition: opacity 0.8s ease, background 0.2s, color 0.2s;
+      transition: opacity 0.8s ease, background 0.2s;
+      z-index: 5;
     }
-
-    #replay:hover {
-      background: var(--gold);
-      color: var(--bg);
-    }
-
-    #replay.visible {
-      opacity: 1;
-    }
-
-    #confetti {
-      position: fixed;
-      inset: 0;
-      pointer-events: none;
-      z-index: 10;
-    }
-
-    #tearable-canvas {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      z-index: 1000;
-      cursor: crosshair;
-      transition: opacity 0.8s ease;
-    }
-
-    #tearable-canvas.hidden {
-      opacity: 0;
-      pointer-events: none;
-    }
+    #replay:hover { background: rgba(245,200,66,0.15); }
+    #replay.visible { opacity: 1; }
   </style>
 </head>
-
 <body>
-
-  <canvas id="confetti"></canvas>
-  <canvas id="sampler"></canvas>
-  <canvas id="tearable-canvas"></canvas>
-
-  <div id="background-photo"></div>
-
-  <div id="stage" style="display:none">
-    <div id="mosaic-wrap">
-      <div id="grid"></div>
-    </div>
-
-    <img id="photo" src="bday.webp" style="display:none" alt="birthday photo">
-    <button id="replay">↺ &nbsp;Replay</button>
-  </div>
-
-  <script>
-    // ═══════════════════════════════════════════════════
-    //  AUDIO SYSTEM (Point 13) - Web Audio Synths
-    // ═══════════════════════════════════════════════════
-    const AudioContext = window.AudioContext || window.webkitAudioContext;
-    let actx = null;
-
-    function initAudio() {
-      if (!actx) {
-        actx = new AudioContext();
-      }
-      if (actx.state === 'suspended') actx.resume();
-    }
-
-    function playTick() {
-      if (!actx) return;
-      const now = actx.currentTime;
-      const osc = actx.createOscillator();
-      const gain = actx.createGain();
-
-      osc.type = 'triangle';
-      // Slight pitch variation for realism
-      osc.frequency.setValueAtTime(700 + Math.random() * 200, now);
-      osc.frequency.exponentialRampToValueAtTime(100, now + 0.03);
-
-      gain.gain.setValueAtTime(0.08, now); // soft tick
-      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.03);
-
-      osc.connect(gain);
-      gain.connect(actx.destination);
-      osc.start(now);
-      osc.stop(now + 0.04);
-    }
-
-    function playWhoosh() {
-      if (!actx) return;
-      const now = actx.currentTime;
-      const length = actx.sampleRate * 0.8;
-      const buffer = actx.createBuffer(1, length, actx.sampleRate);
-      const data = buffer.getChannelData(0);
-      for (let i = 0; i < length; i++) data[i] = Math.random() * 2 - 1;
-
-      const noise = actx.createBufferSource();
-      noise.buffer = buffer;
-
-      const filter = actx.createBiquadFilter();
-      filter.type = 'lowpass';
-      filter.frequency.setValueAtTime(200, now);
-      filter.frequency.exponentialRampToValueAtTime(2000, now + 0.4);
-      filter.frequency.exponentialRampToValueAtTime(100, now + 0.8);
-
-      const gain = actx.createGain();
-      gain.gain.setValueAtTime(0, now);
-      gain.gain.linearRampToValueAtTime(0.15, now + 0.2);
-      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.8);
-
-      noise.connect(filter); filter.connect(gain); gain.connect(actx.destination);
-      noise.start(now); noise.stop(now + 0.8);
-    }
-
-    function playPop() {
-      if (!actx) return;
-      const now = actx.currentTime;
-      const osc = actx.createOscillator();
-      const gain = actx.createGain();
-
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(200, now);
-      osc.frequency.exponentialRampToValueAtTime(40, now + 0.2);
-
-      gain.gain.setValueAtTime(0.4, now);
-      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
-
-      osc.connect(gain); gain.connect(actx.destination);
-      osc.start(now); osc.stop(now + 0.2);
-    }
-
-    window.addEventListener('mousedown', initAudio, { once: true });
-    window.addEventListener('touchstart', initAudio, { once: true });
-
-    // ═══════════════════════════════════════════════════
-    //  DOMINO LOGIC
-    // ═══════════════════════════════════════════════════
-    const COLS = 30, ROWS = 30, BASE_TILE_PX = 19, GRID_GAP = 2;
-    const JEWELS = ['#E8637A', '#F5C842', '#9B6FD8', '#4ECDC4', '#F08A5D', '#6BCB77', '#F7B2BD', '#AEE6FF'];
-    const grid = document.getElementById('grid');
-    const wrap = document.getElementById('mosaic-wrap');
-    const replayBtn = document.getElementById('replay');
-
-    // Size the grid correctly
-    function updateGridSize() {
-      const maxWidth = window.innerWidth - 32;
-      const maxHeight = window.innerHeight - 180;
-      const available = Math.max(260, Math.min(maxWidth, maxHeight));
-      const tilePx = Math.min(BASE_TILE_PX, Math.floor((available - (COLS - 1) * GRID_GAP) / COLS));
-      const gridSize = COLS * tilePx + (COLS - 1) * GRID_GAP;
-
-      grid.style.gridTemplateColumns = `repeat(${COLS}, ${tilePx}px)`;
-      grid.style.gridTemplateRows = `repeat(${ROWS}, ${tilePx}px)`;
-      grid.style.width = gridSize + 'px';
-      grid.style.height = gridSize + 'px';
-    }
-
-    updateGridSize();
-    grid.style.display = 'none';
-
-    const tiles = [];
-    for (let r = 0; r < ROWS; r++) {
-      tiles[r] = [];
-      for (let c = 0; c < COLS; c++) {
-        const t = document.createElement('div');
-        t.className = 'tile';
-        const i = r * COLS + c;
-        t.style.background = JEWELS[i % JEWELS.length];
-        t.dataset.r = r; t.dataset.c = c;
-        grid.appendChild(t);
-        tiles[r][c] = t;
-      }
-    }
-
-    // Assign colors from image
-    const sampler = document.getElementById('sampler');
-    const ctx = sampler.getContext('2d');
-    const photo = document.getElementById('photo');
-
-    function applyImageColors() {
-      if (!photo.complete || !photo.naturalWidth) return;
-      sampler.width = COLS; sampler.height = ROWS;
-      ctx.drawImage(photo, 0, 0, COLS, ROWS);
-      const data = ctx.getImageData(0, 0, COLS, ROWS).data;
-      for (let r = 0; r < ROWS; r++) {
-        for (let c = 0; c < COLS; c++) {
-          const i = (r * COLS + c) * 4;
-          tiles[r][c].style.background = `rgb(${data[i]},${data[i + 1]},${data[i + 2]})`;
-          // Attach wave triggering logic directly to tiles for manual play
-          tiles[r][c].onclick = (e) => {
-            e.stopPropagation();
-            startWave(r, c);
-          };
-        }
-      }
-    }
-    photo.onload = applyImageColors;
-    if (photo.complete) applyImageColors();
-
-    let waveActive = false;
-    let waveFallenCount = 0;
-
-    function resetGrid() {
-      for (let r = 0; r < ROWS; r++) {
-        for (let c = 0; c < COLS; c++) {
-          const t = tiles[r][c];
-          t.style.animation = 'none';
-          t.classList.remove('fallen');
-          t.getBoundingClientRect(); // force reflow
-          t.style.animation = '';
-        }
-      }
-      document.getElementById('background-photo').classList.remove('revealed');
-      replayBtn.classList.remove('visible');
-      waveActive = false;
-      waveFallenCount = 0;
-    }
-
-    // Point 1, 5, 6, 15: Natural Manhattan distance propagation with requestAnimationFrame
-    function startWave(startR, startC) {
-      if (waveActive) return;
-      waveActive = true;
-      initAudio();
-
-      const totalTiles = ROWS * COLS;
-      let activeFrontiers = [{ r: startR, c: startC, time: performance.now() }];
-      const visited = new Set([`${startR}-${startC}`]);
-
-      // Unhide grid for animation
-      grid.style.display = 'grid';
-
-      // Animate background revealing during falling (Point 12)
-      document.getElementById('background-photo').classList.add('revealed');
-      playWhoosh(); // cinematic start
-
-      function processWave(currentTime) {
-        let newFrontiers = [];
-        let fallsThisFrame = 0;
-
-        activeFrontiers.forEach(front => {
-          if (currentTime >= front.time) {
-            const t = tiles[front.r][front.c];
-            t.classList.add('fallen');
-            fallsThisFrame++;
-            waveFallenCount++;
-
-            // Propagate to neighbors
-            const neighbors = [
-              [0, 1], [1, 0], [0, -1], [-1, 0]
-            ];
-            neighbors.forEach(([dr, dc]) => {
-              const nr = front.r + dr, nc = front.c + dc;
-              if (nr >= 0 && nr < ROWS && nc >= 0 && nc < COLS) {
-                const key = `${nr}-${nc}`;
-                if (!visited.has(key)) {
-                  visited.add(key);
-                  // Point 6: Random timing added to wave speed (approx 22-32ms base)
-                  const delay = 35 + Math.random() * 15;
-                  newFrontiers.push({ r: nr, c: nc, time: currentTime + delay });
-                }
-              }
-            });
-          } else {
-            newFrontiers.push(front); // still waiting
-          }
-        });
-
-        // Limit tick sound frequency so it doesn't clip audio context
-        if (fallsThisFrame > 0 && Math.random() > 0.4) {
-          playTick();
-        }
-
-        activeFrontiers = newFrontiers;
-
-        if (activeFrontiers.length > 0) {
-          requestAnimationFrame(processWave);
-        } else {
-          // Point 8: When all tiles fall, trigger finale
-          setTimeout(() => {
-            setTimeout(() => {
-              launchConfetti();
-              playPop();
-            }, 300);
-            setTimeout(() => { replayBtn.classList.add('visible'); }, 1500);
-            setTimeout(() => { grid.style.display = 'none'; }, 2200);
-          }, 300); // Wait for last tile animation to nearly finish
-        }
-      }
-
-      requestAnimationFrame(processWave);
-    }
-
-    replayBtn.addEventListener('click', () => {
-      // Re-enable scratch setup
-      resetGrid();
-      grid.style.display = 'none';
-      wrap.classList.remove('zoomed');
-
-      // Reset tearable logic
-      scratchComplete = false;
-      initTearableCloth();
-      tearableCanvas.classList.remove('hidden');
-    });
-
-    // ═══════════════════════════════════════════════════
-    //  TEARABLE CLOTH EFFECT — PREMIUM MASK BRUSH (Points 9, 10, 11)
-    // ═══════════════════════════════════════════════════
-    const tearableCanvas = document.getElementById('tearable-canvas');
-    const tearCtx = tearableCanvas.getContext('2d', { willReadFrequently: true });
-
-    // We use an offscreen canvas to accumulate the scratched path smoothly
-    const maskCanvas = document.createElement('canvas');
-    const maskCtx = maskCanvas.getContext('2d');
-
-    const BRUSH_SIZE = 45;
-    const DPR = Math.min(window.devicePixelRatio || 1, 2);
-    let isDrawing = false;
-    let lx = 0, ly = 0;
-    let scratchComplete = false;
-
-    const bdayImg = new Image();
-    bdayImg.src = 'bday.webp';
-    let bdayLoaded = false;
-    bdayImg.onload = () => { bdayLoaded = true; drawTearFrame(); };
-
-    function resizeCanvas(canvas, context, width, height) {
-      canvas.style.width = width + 'px';
-      canvas.style.height = height + 'px';
-      canvas.width = Math.round(width * DPR);
-      canvas.height = Math.round(height * DPR);
-      context.setTransform(DPR, 0, 0, DPR, 0, 0);
-    }
-
-    function getViewportSize() {
-      const viewport = window.visualViewport;
-      return {
-        width: Math.floor(viewport?.width || window.innerWidth),
-        height: Math.floor(viewport?.height || window.innerHeight)
-      };
-    }
-
-    function initTearableCloth() {
-      const { width: w, height: h } = getViewportSize();
-      resizeCanvas(tearableCanvas, tearCtx, w, h);
-      resizeCanvas(maskCanvas, maskCtx, w, h);
-
-      // Fill the mask completely black (opaque)
-      maskCtx.fillStyle = '#000';
-      maskCtx.fillRect(0, 0, w, h);
-
-      if (bdayLoaded) drawTearFrame();
-    }
-
-    // Check how much is scratched by sampling low-res grid of pixels
-    function checkScratchProgress() {
-      const w = maskCanvas.width, h = maskCanvas.height;
-      const imgData = maskCtx.getImageData(0, 0, w, h).data;
-      let clearCount = 0;
-      let totalSamples = 0;
-
-      // Sample 1 out of every 1024 pixels (approx 32x32 step)
-      for (let i = 3; i < imgData.length; i += 4096) {
-        totalSamples++;
-        if (imgData[i] === 0) clearCount++;
-      }
-
-      if ((clearCount / totalSamples) > 0.45 && !scratchComplete) {
-        // Point 11: Camera zoom and transition!
-        scratchComplete = true;
-        wrap.classList.add('zoomed'); // Triggers scale(1) -> scale(1.04) transition
-
-        setTimeout(() => {
-          tearableCanvas.classList.add('hidden');
-          grid.style.display = 'none';
-        }, 800); // wait for 800ms zoom transition
-      }
-    }
-
-    function drawRoughLine(x, y, isDown) {
-      if (scratchComplete) return;
-      if (!isDown) {
-        lx = x; ly = y;
-        isDrawing = true;
-        return;
-      }
-
-      // Erase on the mask (destination-out makes pixels transparent)
-      maskCtx.globalCompositeOperation = 'destination-out';
-
-      const dist = Math.hypot(x - lx, y - ly);
-      const steps = Math.ceil(dist / 4);
-
-      for (let i = 0; i <= steps; i++) {
-        const t = steps === 0 ? 0 : i / steps;
-        const cx = lx + (x - lx) * t;
-        const cy = ly + (y - ly) * t;
-
-        // Soft circular brush
-        const gradient = maskCtx.createRadialGradient(cx, cy, BRUSH_SIZE * 0.2, cx, cy, BRUSH_SIZE);
-        gradient.addColorStop(0, 'rgba(0,0,0,1)');
-        gradient.addColorStop(1, 'rgba(0,0,0,0)');
-
-        maskCtx.fillStyle = gradient;
-        maskCtx.beginPath();
-        maskCtx.arc(cx, cy, BRUSH_SIZE, 0, Math.PI * 2);
-        maskCtx.fill();
-
-        // Point 10: Ripped paper fibers mapping on edges
-        if (Math.random() > 0.6) {
-          const angle = Math.random() * Math.PI * 2;
-          const rOffset = BRUSH_SIZE * (0.8 + Math.random() * 0.4);
-          maskCtx.fillStyle = 'rgba(0,0,0,0.85)';
-          maskCtx.beginPath();
-          maskCtx.arc(cx + Math.cos(angle) * rOffset, cy + Math.sin(angle) * rOffset, 2 + Math.random() * 3, 0, Math.PI * 2);
-          maskCtx.fill();
-        }
-      }
-
-      maskCtx.globalCompositeOperation = 'source-over';
-      lx = x; ly = y;
-      requestAnimationFrame(drawTearFrame);
-
-      // Debounce the progress check
-      if (Math.random() > 0.9) checkScratchProgress();
-    }
-
-    function drawTearFrame() {
-      if (!bdayLoaded || scratchComplete) return;
-      const { width: viewportWidth, height: viewportHeight } = getViewportSize();
-      const cw = Math.min(tearableCanvas.clientWidth || viewportWidth, viewportWidth);
-      const ch = Math.min(tearableCanvas.clientHeight || viewportHeight, viewportHeight);
-      tearCtx.clearRect(0, 0, cw, ch);
-
-      // We want to draw bday.webp over the whole screen, but only where maskCanvas is opaque.
-      // Additionally, we want the scratched edge to have a tiny drop shadow 
-      // (as if the torn cloth has thickness).
-
-      // Keep the birthday image fully visible on every screen size.
-      const margin = 4;
-      const availableWidth = Math.max(1, cw - margin * 2);
-      const availableHeight = Math.max(1, ch - margin * 2);
-      const scale = Math.min(availableWidth / bdayImg.width, availableHeight / bdayImg.height);
-      const dw = bdayImg.width * scale, dh = bdayImg.height * scale;
-      const dx = (cw - dw) / 2, dy = (ch - dh) / 2;
-
-      // 1. Draw the beautiful shadow of the torn edge!
-      tearCtx.save();
-      tearCtx.shadowColor = 'rgba(0,0,0,0.8)';
-      tearCtx.shadowBlur = 12;
-      tearCtx.shadowOffsetX = 2;
-      tearCtx.shadowOffsetY = 4;
-      // Drawing the mask itself will render its solid parts, plus drop shadows into the transparent torn holes!
-      tearCtx.drawImage(maskCanvas, 0, 0, cw, ch);
-      tearCtx.restore();
-
-      // 2. We now replace the black mask color with the bday.webp image
-      tearCtx.globalCompositeOperation = 'source-atop';
-      tearCtx.fillStyle = '#0D0D14';
-      tearCtx.fillRect(0, 0, cw, ch);
-      tearCtx.drawImage(bdayImg, dx, dy, dw, dh);
-
-      // 3. Reset blending
-      tearCtx.globalCompositeOperation = 'source-over';
-    }
-
-    // Input handling
-    tearableCanvas.addEventListener('mousedown', (e) => drawRoughLine(e.clientX, e.clientY, false));
-    tearableCanvas.addEventListener('mousemove', (e) => {
-      if (isDrawing) drawRoughLine(e.clientX, e.clientY, true);
-    });
-    window.addEventListener('mouseup', () => isDrawing = false);
-
-    // Touch
-    tearableCanvas.addEventListener('touchstart', (e) => {
-      drawRoughLine(e.touches[0].clientX, e.touches[0].clientY, false);
-      initAudio();
-    });
-    tearableCanvas.addEventListener('touchmove', (e) => {
-      if (isDrawing) { e.preventDefault(); drawRoughLine(e.touches[0].clientX, e.touches[0].clientY, true); }
-    }, { passive: false });
-    window.addEventListener('touchend', () => isDrawing = false);
-
-    window.addEventListener('resize', () => {
-      if (!scratchComplete) initTearableCloth();
-      updateGridSize();
-      const { width: w, height: h } = getViewportSize();
-      cc.width = w; cc.height = h;
-    });
-
-    // ═══════════════════════════════════════════════════
-    //  CONFETTI & INITIALIZATION
-    // ═══════════════════════════════════════════════════
-    const cc = document.getElementById('confetti');
-    const ccx = cc.getContext('2d');
-    let pieces = [];
-    let confettiRaf;
-
-    function launchConfetti() {
-      cc.width = window.innerWidth; cc.height = window.innerHeight;
-      pieces = [];
-      const colors = ['#F5C842', '#E8637A', '#9B6FD8', '#4ECDC4', '#F08A5D', '#6BCB77', '#fff'];
-      for (let i = 0; i < 180; i++) {
-        pieces.push({
-          x: Math.random() * cc.width, y: -20 - Math.random() * 200,
-          r: 3 + Math.random() * 5, d: 1.5 + Math.random() * 2.5,
-          c: colors[Math.floor(Math.random() * colors.length)],
-          t: Math.random() * Math.PI * 2, s: (Math.random() - 0.5) * 1.5, o: 1,
-        });
-      }
-      cancelAnimationFrame(confettiRaf);
-      tickConfetti();
-    }
-
-    function tickConfetti() {
-      ccx.clearRect(0, 0, cc.width, cc.height);
-      let alive = false;
-      pieces.forEach(p => {
-        p.y += p.d; p.x += p.s; p.t += 0.04; p.o -= 0.003;
-        if (p.o < 0) p.o = 0;
-        if (p.y < cc.height + 20) alive = true;
-        ccx.save(); ccx.globalAlpha = p.o;
-        ccx.translate(p.x, p.y); ccx.rotate(p.t);
-        ccx.fillStyle = p.c; ccx.fillRect(-p.r, -p.r / 2, p.r * 2, p.r);
-        ccx.restore();
+<div id="app">
+  <div id="photo-bg"></div>
+  <canvas id="cloth-canvas"></canvas>
+  <canvas id="confetti-canvas"></canvas>
+  <div id="hint">✦ Grab &amp; tear the cloth</div>
+  <button id="replay">↺ Replay</button>
+</div>
+
+<script>
+// ─────────────────────────────────────────────
+//  SETUP
+// ─────────────────────────────────────────────
+const canvas   = document.getElementById('cloth-canvas');
+const ctx      = canvas.getContext('2d');
+const confCvs  = document.getElementById('confetti-canvas');
+const confCtx  = confCvs.getContext('2d');
+const app      = document.getElementById('app');
+const hint     = document.getElementById('hint');
+const replayBtn= document.getElementById('replay');
+
+let W, H;
+
+// Cloth grid resolution — more cols = smoother but heavier
+const COLS = 40;
+const ROWS = 30;
+let SX, SY; // spacing x / y
+
+// Physics constants
+const GRAVITY        = 0.5;
+const DAMPING        = 0.988;
+const ITERATIONS     = 8;
+const TEAR_DIST_MULT = 2.6;   // stick tears when stretched beyond this × rest length
+const MOUSE_RADIUS   = 80;    // px influence radius
+const MOUSE_CUT_RADIUS = 55;  // px cut radius when dragging fast
+
+let pts  = [];
+let segs = [];
+
+// Cloth image (bday.webp painted onto the cloth)
+const clothImg = new Image();
+clothImg.src = 'bday.webp';
+let clothImgReady = false;
+clothImg.onload = () => { clothImgReady = true; };
+
+// Off-screen canvas to sample cloth image colours per tile
+const sampler = document.createElement('canvas');
+const sampCtx = sampler.getContext('2d');
+
+// Mouse/touch state
+const mouse = { x: -9999, y: -9999, px: -9999, py: -9999, down: false };
+
+// Confetti
+let confPieces = [];
+let confRaf;
+let revealDone = false;
+
+// ─────────────────────────────────────────────
+//  INIT CLOTH
+// ─────────────────────────────────────────────
+function initCloth() {
+  pts = [];
+  segs = [];
+  revealDone = false;
+  replayBtn.classList.remove('visible');
+  hint.style.opacity = '1';
+
+  // Sample colours from bday.webp at cloth resolution
+  sampler.width  = COLS;
+  sampler.height = ROWS;
+  if (clothImgReady) {
+    sampCtx.drawImage(clothImg, 0, 0, COLS, ROWS);
+  } else {
+    // Fallback gradient if image not yet loaded
+    const grad = sampCtx.createLinearGradient(0, 0, COLS, ROWS);
+    grad.addColorStop(0,   '#7b2d8b');
+    grad.addColorStop(0.5, '#c0392b');
+    grad.addColorStop(1,   '#e67e22');
+    sampCtx.fillStyle = grad;
+    sampCtx.fillRect(0, 0, COLS, ROWS);
+  }
+  const imgData = sampCtx.getImageData(0, 0, COLS, ROWS).data;
+
+  // Build points
+  for (let r = 0; r < ROWS; r++) {
+    for (let c = 0; c < COLS; c++) {
+      const x = c * SX;
+      const y = r * SY;
+      const idx = (r * COLS + c) * 4;
+      pts.push({
+        x, y, px: x, py: y,
+        pinned: r === 0,
+        cr: imgData[idx],
+        cg: imgData[idx + 1],
+        cb: imgData[idx + 2],
       });
-      if (alive) confettiRaf = requestAnimationFrame(tickConfetti);
-      else ccx.clearRect(0, 0, cc.width, cc.height);
     }
+  }
 
-    // Startup
-    document.getElementById('stage').style.display = 'flex';
-    initTearableCloth();
-  </script>
+  // Horizontal sticks
+  for (let r = 0; r < ROWS; r++) {
+    for (let c = 0; c < COLS - 1; c++) {
+      const i = r * COLS + c;
+      segs.push({ a: pts[i], b: pts[i + 1], len: SX, torn: false });
+    }
+  }
+  // Vertical sticks
+  for (let r = 0; r < ROWS - 1; r++) {
+    for (let c = 0; c < COLS; c++) {
+      const i = r * COLS + c;
+      segs.push({ a: pts[i], b: pts[i + COLS], len: SY, torn: false });
+    }
+  }
+}
+
+// ─────────────────────────────────────────────
+//  PHYSICS UPDATE
+// ─────────────────────────────────────────────
+function update() {
+  const mdx = mouse.x - mouse.px;
+  const mdy = mouse.y - mouse.py;
+  const mspeed = Math.hypot(mdx, mdy);
+
+  // Integrate velocity
+  for (const p of pts) {
+    if (p.pinned) continue;
+    const vx = (p.x - p.px) * DAMPING;
+    const vy = (p.y - p.py) * DAMPING;
+    p.px = p.x;
+    p.py = p.y;
+    p.x += vx;
+    p.y += vy + GRAVITY;
+    // Floor
+    if (p.y > H + 60) { p.y = H + 60; }
+
+    // Mouse interaction
+    if (mouse.down) {
+      const dx = p.x - mouse.x;
+      const dy = p.y - mouse.y;
+      const dist = Math.hypot(dx, dy);
+      if (dist < MOUSE_RADIUS) {
+        const f = (1 - dist / MOUSE_RADIUS);
+        p.x += mdx * f * 0.5;
+        p.y += mdy * f * 0.5;
+      }
+    }
+  }
+
+  // Constraint solving
+  for (let iter = 0; iter < ITERATIONS; iter++) {
+    for (const s of segs) {
+      if (s.torn) continue;
+      const dx = s.b.x - s.a.x;
+      const dy = s.b.y - s.a.y;
+      const dist = Math.hypot(dx, dy) || 0.001;
+      const diff = (dist - s.len) / dist * 0.5;
+      const ox = dx * diff;
+      const oy = dy * diff;
+      if (!s.a.pinned) { s.a.x += ox; s.a.y += oy; }
+      if (!s.b.pinned) { s.b.x -= ox; s.b.y -= oy; }
+      // Auto-tear if over-stretched
+      if (dist > s.len * TEAR_DIST_MULT) {
+        s.torn = true;
+      }
+    }
+  }
+
+  // Mouse cut: tear sticks near cursor when dragging fast
+  if (mouse.down && mspeed > 4) {
+    for (const s of segs) {
+      if (s.torn) continue;
+      const mx = (s.a.x + s.b.x) * 0.5;
+      const my = (s.a.y + s.b.y) * 0.5;
+      if (Math.hypot(mx - mouse.x, my - mouse.y) < MOUSE_CUT_RADIUS) {
+        s.torn = true;
+      }
+    }
+  }
+
+  mouse.px = mouse.x;
+  mouse.py = mouse.y;
+
+  // Check reveal progress
+  if (!revealDone) {
+    const tornCount = segs.filter(s => s.torn).length;
+    const pct = tornCount / segs.length;
+    if (pct > 0.35) {
+      revealDone = true;
+      hint.style.opacity = '0';
+      setTimeout(() => {
+        launchConfetti();
+        replayBtn.classList.add('visible');
+      }, 400);
+    }
+  }
+}
+
+// ─────────────────────────────────────────────
+//  DRAW — smooth cloth quads, no grid lines
+// ─────────────────────────────────────────────
+function draw() {
+  ctx.clearRect(0, 0, W, H);
+
+  // We draw the cloth as filled quads using image data colours.
+  // Skip any quad where a bordering stick is torn → shows photo behind.
+  // We also build a lookup for torn sticks keyed by point pair for speed.
+  const tornH = new Set(); // horizontal torn sticks: key = r*COLS+c → r*COLS+c+1
+  const tornV = new Set(); // vertical torn sticks
+
+  for (const s of segs) {
+    if (!s.torn) continue;
+    // Determine orientation by rest length
+    const ia = pts.indexOf(s.a);
+    const ib = pts.indexOf(s.b);
+    if (ib === ia + 1) tornH.add(ia);         // horizontal
+    else if (ib === ia + COLS) tornV.add(ia); // vertical
+  }
+
+  // Draw filled quads
+  const clothPath = new Path2D();
+  for (let r = 0; r < ROWS - 1; r++) {
+    for (let c = 0; c < COLS - 1; c++) {
+      const i  = r * COLS + c;
+      const p0 = pts[i];
+      const p1 = pts[i + 1];
+      const p2 = pts[i + COLS];
+      const p3 = pts[i + COLS + 1];
+
+      // Skip if any of the 4 bounding sticks are torn
+      if (tornH.has(i) || tornH.has(i + COLS) || tornV.has(i) || tornV.has(i + 1)) continue;
+
+      // Colour from sampled bday.webp pixel — use centre of quad
+      const cr = (p0.cr + p1.cr + p2.cr + p3.cr) >> 2;
+      const cg = (p0.cg + p1.cg + p2.cg + p3.cg) >> 2;
+      const cb = (p0.cb + p1.cb + p2.cb + p3.cb) >> 2;
+
+      // Simple diffuse shading: normal-ish from quad geometry
+      const nx = (p1.x - p0.x);
+      const ny = (p2.y - p0.y);
+      const len = Math.hypot(nx, ny) || 1;
+      // Light from top-left
+      const shade = 0.72 + 0.28 * Math.min(1, Math.max(0, (nx + ny) / len / 2 + 0.5));
+
+      ctx.beginPath();
+      ctx.moveTo(p0.x, p0.y);
+      ctx.lineTo(p1.x, p1.y);
+      ctx.lineTo(p3.x, p3.y);
+      ctx.lineTo(p2.x, p2.y);
+      ctx.closePath();
+      ctx.fillStyle = `rgb(${Math.round(cr*shade)},${Math.round(cg*shade)},${Math.round(cb*shade)})`;
+      ctx.fill();
+      clothPath.moveTo(p0.x, p0.y);
+      clothPath.lineTo(p1.x, p1.y);
+      clothPath.lineTo(p3.x, p3.y);
+      clothPath.lineTo(p2.x, p2.y);
+      clothPath.closePath();
+      // NO stroke → no grid lines
+    }
+  }
+
+  ctx.save();
+  ctx.clip(clothPath);
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.font = `700 ${Math.min(W * 0.12, H * 0.13, 86)}px Georgia, serif`;
+  ctx.lineWidth = Math.max(4, Math.min(W, H) * 0.008);
+  ctx.strokeStyle = 'rgba(45, 12, 55, 0.72)';
+  ctx.fillStyle = '#fff4c7';
+  ctx.shadowColor = 'rgba(0, 0, 0, 0.45)';
+  ctx.shadowBlur = 10;
+  ctx.strokeText('Happy Birthday', W / 2, H * 0.48);
+  ctx.fillText('Happy Birthday', W / 2, H * 0.48);
+  ctx.restore();
+}
+
+// ─────────────────────────────────────────────
+//  CONFETTI
+// ─────────────────────────────────────────────
+function launchConfetti() {
+  const colors = ['#F5C842','#E8637A','#9B6FD8','#4ECDC4','#F08A5D','#6BCB77','#fff'];
+  confPieces = Array.from({ length: 160 }, () => ({
+    x: Math.random() * W, y: -20 - Math.random() * 180,
+    r: 3 + Math.random() * 5, d: 1.4 + Math.random() * 2.5,
+    c: colors[Math.floor(Math.random() * colors.length)],
+    t: Math.random() * Math.PI * 2, s: (Math.random() - 0.5) * 1.8, o: 1,
+  }));
+  cancelAnimationFrame(confRaf);
+  tickConfetti();
+}
+
+function tickConfetti() {
+  confCtx.clearRect(0, 0, W, H);
+  let alive = false;
+  for (const p of confPieces) {
+    p.y += p.d; p.x += p.s; p.t += 0.04; p.o -= 0.0035;
+    if (p.o <= 0) p.o = 0;
+    if (p.y < H + 20) alive = true;
+    confCtx.save();
+    confCtx.globalAlpha = p.o;
+    confCtx.translate(p.x, p.y);
+    confCtx.rotate(p.t);
+    confCtx.fillStyle = p.c;
+    confCtx.fillRect(-p.r, -p.r / 2, p.r * 2, p.r);
+    confCtx.restore();
+  }
+  if (alive) confRaf = requestAnimationFrame(tickConfetti);
+}
+
+// ─────────────────────────────────────────────
+//  MAIN LOOP
+// ─────────────────────────────────────────────
+function loop() {
+  update();
+  draw();
+  requestAnimationFrame(loop);
+}
+
+// ─────────────────────────────────────────────
+//  RESIZE
+// ─────────────────────────────────────────────
+function resize() {
+  W = app.clientWidth;
+  H = app.clientHeight;
+  canvas.width  = W; canvas.height  = H;
+  confCvs.width = W; confCvs.height = H;
+  SX = W / (COLS - 1);
+  SY = H / (ROWS - 1);
+  initCloth();
+}
+
+// ─────────────────────────────────────────────
+//  INPUT
+// ─────────────────────────────────────────────
+function getXY(e) {
+  const r = canvas.getBoundingClientRect();
+  const src = e.touches ? e.touches[0] : e;
+  return { x: src.clientX - r.left, y: src.clientY - r.top };
+}
+
+canvas.addEventListener('mousedown', e => {
+  mouse.down = true;
+  const p = getXY(e);
+  mouse.x = p.x; mouse.y = p.y; mouse.px = p.x; mouse.py = p.y;
+  hint.style.opacity = '0';
+});
+canvas.addEventListener('mousemove', e => {
+  if (!mouse.down) return;
+  mouse.px = mouse.x; mouse.py = mouse.y;
+  const p = getXY(e); mouse.x = p.x; mouse.y = p.y;
+});
+window.addEventListener('mouseup', () => { mouse.down = false; });
+
+canvas.addEventListener('touchstart', e => {
+  e.preventDefault();
+  mouse.down = true;
+  const p = getXY(e);
+  mouse.x = p.x; mouse.y = p.y; mouse.px = p.x; mouse.py = p.y;
+  hint.style.opacity = '0';
+}, { passive: false });
+canvas.addEventListener('touchmove', e => {
+  e.preventDefault();
+  if (!mouse.down) return;
+  mouse.px = mouse.x; mouse.py = mouse.y;
+  const p = getXY(e); mouse.x = p.x; mouse.y = p.y;
+}, { passive: false });
+window.addEventListener('touchend', () => { mouse.down = false; });
+
+replayBtn.addEventListener('click', () => {
+  confPieces = [];
+  confCtx.clearRect(0, 0, W, H);
+  resize();
+});
+
+window.addEventListener('resize', resize);
+
+// Wait for cloth image before first init
+function start() {
+  resize();
+  loop();
+}
+
+if (clothImgReady) {
+  start();
+} else {
+  clothImg.onload = () => { clothImgReady = true; start(); };
+  // Start anyway after short delay even if image fails
+  setTimeout(start, 300);
+}
+</script>
 </body>
-
 </html>
