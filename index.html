@@ -42,16 +42,17 @@
       width: 100%;
       height: 100%;
       background-image: url('photo.jpeg');
-      background-size: cover;
+      background-size: contain;
       background-position: center;
+      background-repeat: no-repeat;
+      background-color: var(--bg);
       z-index: 0;
-      /* Point 12: Start blurred and darkened */
-      filter: blur(15px) brightness(0.5);
+      filter: none;
       transition: filter 2.5s cubic-bezier(0.22, 1, 0.36, 1);
     }
 
     #background-photo.revealed {
-      filter: blur(0px) brightness(1);
+      filter: none;
     }
 
     #stage {
@@ -491,8 +492,16 @@
       context.setTransform(DPR, 0, 0, DPR, 0, 0);
     }
 
+    function getViewportSize() {
+      const viewport = window.visualViewport;
+      return {
+        width: Math.floor(viewport?.width || window.innerWidth),
+        height: Math.floor(viewport?.height || window.innerHeight)
+      };
+    }
+
     function initTearableCloth() {
-      const w = window.innerWidth, h = window.innerHeight;
+      const { width: w, height: h } = getViewportSize();
       resizeCanvas(tearableCanvas, tearCtx, w, h);
       resizeCanvas(maskCanvas, maskCtx, w, h);
 
@@ -578,8 +587,9 @@
 
     function drawTearFrame() {
       if (!bdayLoaded || scratchComplete) return;
-      const cw = tearableCanvas.clientWidth || window.innerWidth;
-      const ch = tearableCanvas.clientHeight || window.innerHeight;
+      const { width: viewportWidth, height: viewportHeight } = getViewportSize();
+      const cw = Math.min(tearableCanvas.clientWidth || viewportWidth, viewportWidth);
+      const ch = Math.min(tearableCanvas.clientHeight || viewportHeight, viewportHeight);
       tearCtx.clearRect(0, 0, cw, ch);
 
       // We want to draw bday.webp over the whole screen, but only where maskCanvas is opaque.
@@ -587,7 +597,10 @@
       // (as if the torn cloth has thickness).
 
       // Keep the birthday image fully visible on every screen size.
-      const scale = Math.min((cw - 24) / bdayImg.width, (ch - 24) / bdayImg.height);
+      const margin = 16;
+      const availableWidth = Math.max(1, cw - margin * 2);
+      const availableHeight = Math.max(1, ch - margin * 2);
+      const scale = Math.min(availableWidth / bdayImg.width, availableHeight / bdayImg.height, 1);
       const dw = bdayImg.width * scale, dh = bdayImg.height * scale;
       const dx = (cw - dw) / 2, dy = (ch - dh) / 2;
 
@@ -631,7 +644,7 @@
     window.addEventListener('resize', () => {
       if (!scratchComplete) initTearableCloth();
       updateGridSize();
-      const w = window.innerWidth, h = window.innerHeight;
+      const { width: w, height: h } = getViewportSize();
       cc.width = w; cc.height = h;
     });
 
