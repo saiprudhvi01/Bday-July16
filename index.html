@@ -127,7 +127,7 @@ clothImg.src = 'bday.webp';
 let clothImgReady = false;
 clothImg.onload = () => { clothImgReady = true; };
 
-// Off-screen canvas to sample cloth image colours per tile
+// Off-screen canvas to render cloth image at full resolution
 const sampler = document.createElement('canvas');
 const sampCtx = sampler.getContext('2d');
 
@@ -140,6 +140,116 @@ let confRaf;
 let revealDone = false;
 
 // ─────────────────────────────────────────────
+//  PAPER TEAR SOUND ENGINE
+// ─────────────────────────────────────────────
+let audioCtx = null;
+let tearSoundActive = false;
+let tearSoundNodes = null;
+let lastTornCount = 0;
+let tearIntensityTimer = null;
+
+function getAudioCtx() {
+  if (!audioCtx) {
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  }
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+  return audioCtx;
+}
+
+// Generates a single short paper-fiber crackle burst
+function playTearCrackle(intensity) {
+  const ac = getAudioCtx();
+  const duration = 0.04 + Math.random() * 0.05; // 40–90 ms burst
+  const sr = ac.sampleRate;
+  const frameCount = Math.ceil(sr * duration);
+
+  // Layer 1: white noise
+  const bufWhite = ac.createBuffer(1, frameCount, sr);
+  const dWhite = bufWhite.getChannelData(0);
+  for (let i = 0; i < frameCount; i++) dWhite[i] = Math.random() * 2 - 1;
+
+  // Layer 2: pink-ish noise (each sample is avg of 3 randoms → smoother spectrum)
+  const bufPink = ac.createBuffer(1, frameCount, sr);
+  const dPink = bufPink.getChannelData(0);
+  let b0 = 0, b1 = 0, b2 = 0;
+  for (let i = 0; i < frameCount; i++) {
+    const wh = Math.random() * 2 - 1;
+    b0 = 0.99886 * b0 + wh * 0.0555179;
+    b1 = 0.99332 * b1 + wh * 0.0750759;
+    b2 = 0.96900 * b2 + wh * 0.1538520;
+    dPink[i] = (b0 + b1 + b2 + wh * 0.5362) * 0.11;
+  }
+
+  const now = ac.currentTime;
+  const masterGain = ac.createGain();
+  masterGain.gain.setValueAtTime(0, now);
+  masterGain.gain.linearRampToValueAtTime(intensity * 0.9, now + 0.008);
+  masterGain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+  masterGain.connect(ac.destination);
+
+  // White noise → bandpass @ 2.8 kHz (crisp fiber snap)
+  const srcW = ac.createBufferSource();
+  srcW.buffer = bufWhite;
+  const bpW = ac.createBiquadFilter();
+  bpW.type = 'bandpass';
+  bpW.frequency.value = 2800 + (Math.random() - 0.5) * 600;
+  bpW.Q.value = 0.8;
+  srcW.connect(bpW);
+  bpW.connect(masterGain);
+  srcW.start(now);
+
+  // White noise → bandpass @ 5 kHz (high-end shred)
+  const srcW2 = ac.createBufferSource();
+  srcW2.buffer = bufWhite;
+  const bpW2 = ac.createBiquadFilter();
+  bpW2.type = 'bandpass';
+  bpW2.frequency.value = 5000 + (Math.random() - 0.5) * 800;
+  bpW2.Q.value = 1.2;
+  const gainW2 = ac.createGain();
+  gainW2.gain.value = 0.55;
+  srcW2.connect(bpW2);
+  bpW2.connect(gainW2);
+  gainW2.connect(masterGain);
+  srcW2.start(now);
+
+  // Pink noise → lowpass @ 1.2 kHz (body / thud of thick paper)
+  const srcP = ac.createBufferSource();
+  srcP.buffer = bufPink;
+  const lpP = ac.createBiquadFilter();
+  lpP.type = 'lowpass';
+  lpP.frequency.value = 1200;
+  const gainP = ac.createGain();
+  gainP.gain.value = 0.4;
+  srcP.connect(lpP);
+  lpP.connect(gainP);
+  gainP.connect(masterGain);
+  srcP.start(now);
+}
+
+// Continuous tear: fires rapid crackle bursts while dragging & tearing
+function startTearSound() {
+  if (tearSoundActive) return;
+  tearSoundActive = true;
+  function burst() {
+    if (!tearSoundActive) return;
+    playTearCrackle(0.35 + Math.random() * 0.35);
+    // Interval varies 18–45 ms → sounds like irregular fiber breaks
+    tearIntensityTimer = setTimeout(burst, 18 + Math.random() * 27);
+  }
+  burst();
+}
+
+function stopTearSound() {
+  tearSoundActive = false;
+  clearTimeout(tearIntensityTimer);
+}
+
+// Track torn count so we only play sound when new sticks actually tear
+function resetTearCount() {
+  lastTornCount = 0;
+}
+
+// ─────────────────────────────────────────────
 //  INIT CLOTH
 // ─────────────────────────────────────────────
 function initCloth() {
@@ -149,34 +259,29 @@ function initCloth() {
   replayBtn.classList.remove('visible');
   hint.style.opacity = '1';
 
-  // Sample colours from bday.webp at cloth resolution
-  sampler.width  = COLS;
-  sampler.height = ROWS;
+  // Draw cloth image at full screen resolution into sampler
+  sampler.width  = W;
+  sampler.height = H;
   if (clothImgReady) {
-    sampCtx.drawImage(clothImg, 0, 0, COLS, ROWS);
+    sampCtx.drawImage(clothImg, 0, 0, W, H);
   } else {
-    // Fallback gradient if image not yet loaded
-    const grad = sampCtx.createLinearGradient(0, 0, COLS, ROWS);
+    const grad = sampCtx.createLinearGradient(0, 0, W, H);
     grad.addColorStop(0,   '#7b2d8b');
     grad.addColorStop(0.5, '#c0392b');
     grad.addColorStop(1,   '#e67e22');
     sampCtx.fillStyle = grad;
-    sampCtx.fillRect(0, 0, COLS, ROWS);
+    sampCtx.fillRect(0, 0, W, H);
   }
-  const imgData = sampCtx.getImageData(0, 0, COLS, ROWS).data;
 
-  // Build points
+  // Build points — store UV coords for texture lookup
   for (let r = 0; r < ROWS; r++) {
     for (let c = 0; c < COLS; c++) {
       const x = c * SX;
       const y = r * SY;
-      const idx = (r * COLS + c) * 4;
       pts.push({
         x, y, px: x, py: y,
         pinned: r === 0,
-        cr: imgData[idx],
-        cg: imgData[idx + 1],
-        cb: imgData[idx + 2],
+        u: x, v: y,   // original screen position = UV into sampler
       });
     }
   }
@@ -264,6 +369,15 @@ function update() {
   mouse.px = mouse.x;
   mouse.py = mouse.y;
 
+  // Trigger tear sound when new sticks are torn while mouse is held
+  if (mouse.down) {
+    const currentTorn = segs.filter(s => s.torn).length;
+    if (currentTorn > lastTornCount) {
+      startTearSound();
+      lastTornCount = currentTorn;
+    }
+  }
+
   // Check reveal progress
   if (!revealDone) {
     const tornCount = segs.filter(s => s.torn).length;
@@ -277,6 +391,34 @@ function update() {
       }, 400);
     }
   }
+}
+
+// ─────────────────────────────────────────────
+//  TEXTURED TRIANGLE — maps image onto deformed cloth
+// ─────────────────────────────────────────────
+function drawTexturedTriangle(ctx, img, x0,y0,u0,v0, x1,y1,u1,v1, x2,y2,u2,v2) {
+  ctx.save();
+  ctx.beginPath();
+  ctx.moveTo(x0, y0);
+  ctx.lineTo(x1, y1);
+  ctx.lineTo(x2, y2);
+  ctx.closePath();
+  ctx.clip();
+
+  // Solve the affine transform: source UV → screen XY
+  const denom = (u0*(v1-v2) + u1*(v2-v0) + u2*(v0-v1));
+  if (Math.abs(denom) < 0.0001) { ctx.restore(); return; }
+
+  const a = ((x0*(v1-v2) + x1*(v2-v0) + x2*(v0-v1)) / denom);
+  const b = ((y0*(v1-v2) + y1*(v2-v0) + y2*(v0-v1)) / denom);
+  const c = ((x0*(u2-u1) + x1*(u0-u2) + x2*(u1-u0)) / denom);
+  const d = ((y0*(u2-u1) + y1*(u0-u2) + y2*(u1-u0)) / denom);
+  const e = ((x0*(u1*v2-u2*v1) + x1*(u2*v0-u0*v2) + x2*(u0*v1-u1*v0)) / denom);
+  const f = ((y0*(u1*v2-u2*v1) + y1*(u2*v0-u0*v2) + y2*(u0*v1-u1*v0)) / denom);
+
+  ctx.transform(a, b, c, d, e, f);
+  ctx.drawImage(img, 0, 0);
+  ctx.restore();
 }
 
 // ─────────────────────────────────────────────
@@ -301,6 +443,7 @@ function draw() {
   }
 
   // Draw filled quads
+  ctx.shadowBlur = 0; // ensure no blur bleeds onto cloth quads
   const clothPath = new Path2D();
   for (let r = 0; r < ROWS - 1; r++) {
     for (let c = 0; c < COLS - 1; c++) {
@@ -313,32 +456,24 @@ function draw() {
       // Skip if any of the 4 bounding sticks are torn
       if (tornH.has(i) || tornH.has(i + COLS) || tornV.has(i) || tornV.has(i + 1)) continue;
 
-      // Colour from sampled bday.webp pixel — use centre of quad
-      const cr = (p0.cr + p1.cr + p2.cr + p3.cr) >> 2;
-      const cg = (p0.cg + p1.cg + p2.cg + p3.cg) >> 2;
-      const cb = (p0.cb + p1.cb + p2.cb + p3.cb) >> 2;
+      // Draw the quad by mapping the sampler image onto the deformed quad
+      // Split into 2 triangles and use canvas transform to texture-map each
+      drawTexturedTriangle(ctx, sampler,
+        p0.x, p0.y, p0.u, p0.v,
+        p1.x, p1.y, p1.u, p1.v,
+        p3.x, p3.y, p3.u, p3.v
+      );
+      drawTexturedTriangle(ctx, sampler,
+        p0.x, p0.y, p0.u, p0.v,
+        p3.x, p3.y, p3.u, p3.v,
+        p2.x, p2.y, p2.u, p2.v
+      );
 
-      // Simple diffuse shading: normal-ish from quad geometry
-      const nx = (p1.x - p0.x);
-      const ny = (p2.y - p0.y);
-      const len = Math.hypot(nx, ny) || 1;
-      // Light from top-left
-      const shade = 0.72 + 0.28 * Math.min(1, Math.max(0, (nx + ny) / len / 2 + 0.5));
-
-      ctx.beginPath();
-      ctx.moveTo(p0.x, p0.y);
-      ctx.lineTo(p1.x, p1.y);
-      ctx.lineTo(p3.x, p3.y);
-      ctx.lineTo(p2.x, p2.y);
-      ctx.closePath();
-      ctx.fillStyle = `rgb(${Math.round(cr*shade)},${Math.round(cg*shade)},${Math.round(cb*shade)})`;
-      ctx.fill();
       clothPath.moveTo(p0.x, p0.y);
       clothPath.lineTo(p1.x, p1.y);
       clothPath.lineTo(p3.x, p3.y);
       clothPath.lineTo(p2.x, p2.y);
       clothPath.closePath();
-      // NO stroke → no grid lines
     }
   }
 
@@ -426,13 +561,17 @@ canvas.addEventListener('mousedown', e => {
   const p = getXY(e);
   mouse.x = p.x; mouse.y = p.y; mouse.px = p.x; mouse.py = p.y;
   hint.style.opacity = '0';
+  getAudioCtx(); // unlock audio context on first user gesture
 });
 canvas.addEventListener('mousemove', e => {
   if (!mouse.down) return;
   mouse.px = mouse.x; mouse.py = mouse.y;
   const p = getXY(e); mouse.x = p.x; mouse.y = p.y;
 });
-window.addEventListener('mouseup', () => { mouse.down = false; });
+window.addEventListener('mouseup', () => {
+  mouse.down = false;
+  stopTearSound();
+});
 
 canvas.addEventListener('touchstart', e => {
   e.preventDefault();
@@ -440,6 +579,7 @@ canvas.addEventListener('touchstart', e => {
   const p = getXY(e);
   mouse.x = p.x; mouse.y = p.y; mouse.px = p.x; mouse.py = p.y;
   hint.style.opacity = '0';
+  getAudioCtx(); // unlock audio context on first user gesture
 }, { passive: false });
 canvas.addEventListener('touchmove', e => {
   e.preventDefault();
@@ -447,9 +587,14 @@ canvas.addEventListener('touchmove', e => {
   mouse.px = mouse.x; mouse.py = mouse.y;
   const p = getXY(e); mouse.x = p.x; mouse.y = p.y;
 }, { passive: false });
-window.addEventListener('touchend', () => { mouse.down = false; });
+window.addEventListener('touchend', () => {
+  mouse.down = false;
+  stopTearSound();
+});
 
 replayBtn.addEventListener('click', () => {
+  stopTearSound();
+  resetTearCount();
   confPieces = [];
   confCtx.clearRect(0, 0, W, H);
   resize();
