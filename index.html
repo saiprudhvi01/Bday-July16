@@ -80,6 +80,68 @@
     }
     #replay:hover { background: rgba(245,200,66,0.15); }
     #replay.visible { opacity: 1; }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.12); }
+    }
+    @keyframes flicker {
+      0%, 100% { opacity: 1; }
+      45% { opacity: 0.85; }
+      50% { opacity: 0.6; }
+      55% { opacity: 0.9; }
+    }
+    #cake-container {
+      position: absolute; inset: 0;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: flex-end;
+      padding-bottom: 60px;
+      opacity: 0; pointer-events: none;
+      transform: translateY(60px);
+      transition: opacity 1.2s ease, transform 1.2s ease;
+      z-index: 10;
+      background: rgba(0,0,0,0);
+    }
+    #cake-container.visible {
+      opacity: 1; pointer-events: auto;
+      transform: translateY(0);
+    }
+    #cake-emoji {
+      font-size: 100px;
+      animation: pulse 2s infinite ease-in-out, flicker 1.8s infinite ease-in-out;
+      filter: drop-shadow(0 0 18px rgba(255,200,80,0.7));
+    }
+    #cake-title {
+      color: #fff;
+      font-family: 'Georgia', serif;
+      margin-top: 20px;
+      font-size: clamp(22px, 5vw, 36px);
+      text-shadow: 0 0 18px rgba(255,180,60,0.8), 0 2px 8px rgba(0,0,0,0.6);
+      letter-spacing: 0.04em;
+    }
+    #blow-candles {
+      margin-top: 30px;
+      padding: 12px 30px;
+      cursor: pointer;
+      background: #F5C842;
+      border: none;
+      border-radius: 30px;
+      font-weight: bold;
+      font-size: 16px;
+      letter-spacing: 0.06em;
+      box-shadow: 0 0 20px rgba(245,200,66,0.6);
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+    #blow-candles:hover { transform: scale(1.06); box-shadow: 0 0 30px rgba(245,200,66,0.9); }
+    #wish-msg {
+      color: #F5C842;
+      font-family: 'Georgia', serif;
+      font-size: clamp(28px, 7vw, 56px);
+      text-align: center;
+      text-shadow: 0 0 24px rgba(245,200,66,0.8), 0 2px 10px rgba(0,0,0,0.7);
+      animation: pulse 1.6s infinite ease-in-out;
+      padding: 0 20px;
+    }
   </style>
 </head>
 <body>
@@ -89,6 +151,11 @@
   <canvas id="confetti-canvas"></canvas>
   <div id="hint">✦ Grab &amp; tear the cloth</div>
   <button id="replay">↺ Replay</button>
+  <div id="cake-container">
+    <div id="cake-emoji">🎂</div>
+    <h2 id="cake-title">Make a Wish!</h2>
+    <button id="blow-candles">🕯️ Blow out the candles</button>
+  </div>
 </div>
 
 <script>
@@ -383,12 +450,16 @@ function update() {
   if (!revealDone) {
     const tornCount = segs.filter(s => s.torn).length;
     const pct = tornCount / segs.length;
-    if (pct > 0.35) {
+    if (pct > 0.60) {
       revealDone = true;
       hint.style.opacity = '0';
+      canvas.style.pointerEvents = 'none'; // let cake container receive clicks
       setTimeout(() => {
         launchConfetti();
         replayBtn.classList.add('visible');
+        document.getElementById('photo-bg').style.transition = 'filter 1.5s ease';
+        document.getElementById('photo-bg').style.filter = 'brightness(30%)';
+        document.getElementById('cake-container').classList.add('visible');
       }, 400);
     }
   }
@@ -478,19 +549,22 @@ function draw() {
     }
   }
 
-  ctx.save();
-  ctx.clip(clothPath);
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
-  ctx.font = `700 ${Math.min(W * 0.12, H * 0.13, 86)}px Georgia, serif`;
-  ctx.lineWidth = Math.max(4, Math.min(W, H) * 0.008);
-  ctx.strokeStyle = 'rgba(45, 12, 55, 0.72)';
-  ctx.fillStyle = '#fff4c7';
-  ctx.shadowColor = 'rgba(0, 0, 0, 0.45)';
-  ctx.shadowBlur = 10;
-  ctx.strokeText('Happy Birthday', W / 2, H * 0.48);
-  ctx.fillText('Happy Birthday', W / 2, H * 0.48);
-  ctx.restore();
+  // Only draw text while cloth is still being torn
+  if (!revealDone) {
+    ctx.save();
+    ctx.clip(clothPath);
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.font = `700 ${Math.min(W * 0.12, H * 0.13, 86)}px Georgia, serif`;
+    ctx.lineWidth = Math.max(4, Math.min(W, H) * 0.008);
+    ctx.strokeStyle = 'rgba(45, 12, 55, 0.72)';
+    ctx.fillStyle = '#fff4c7';
+    ctx.shadowColor = 'rgba(0, 0, 0, 0.45)';
+    ctx.shadowBlur = 10;
+    ctx.strokeText('Happy Birthday', W / 2, H * 0.48);
+    ctx.fillText('Happy Birthday', W / 2, H * 0.48);
+    ctx.restore();
+  }
 }
 
 // ─────────────────────────────────────────────
@@ -593,7 +667,25 @@ window.addEventListener('touchend', () => {
   stopTearSound();
 });
 
+function blowCandles() {
+  const cc = document.getElementById('cake-container');
+  cc.innerHTML = '<div id="wish-msg">Happy Birthday! 🎉</div>';
+  launchConfetti();
+  setTimeout(launchConfetti, 800);
+  setTimeout(launchConfetti, 1600);
+}
+
+document.getElementById('blow-candles').addEventListener('click', blowCandles);
+
 replayBtn.addEventListener('click', () => {
+  canvas.style.pointerEvents = 'auto';
+  document.getElementById('photo-bg').style.filter = '';
+  document.getElementById('photo-bg').style.transition = '';
+  const cc = document.getElementById('cake-container');
+  cc.classList.remove('visible');
+  cc.innerHTML = `<div id="cake-emoji">🎂</div><h2 id="cake-title">Make a Wish!</h2><button id="blow-candles">🕯️ Blow out the candles</button>`;
+  // Re-attach listener since innerHTML was reset
+  cc.querySelector('#blow-candles').addEventListener('click', blowCandles);
   stopTearSound();
   resetTearCount();
   confPieces = [];
