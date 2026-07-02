@@ -235,8 +235,10 @@ const DAMPING        = 0.988;
 const ITERATIONS     = 8;
 const TEAR_DIST_MULT = 2.6;   // stick tears when stretched beyond this × rest length
 const IS_MOBILE      = window.matchMedia('(pointer: coarse)').matches;
-const MOUSE_RADIUS   = IS_MOBILE ? 38 : 80;    // px influence radius
-const MOUSE_CUT_RADIUS = IS_MOBILE ? 22 : 55;  // px cut radius when dragging fast
+const MOUSE_RADIUS   = IS_MOBILE ? 56 : 80;    // px influence radius
+const MOUSE_CUT_RADIUS = IS_MOBILE ? 36 : 55;  // px cut radius when dragging fast
+const MOUSE_CUT_SPEED  = IS_MOBILE ? 2.0 : 4.0;
+const AUTO_REVEAL_DELAY_MS = 5000;
 
 let pts  = [];
 let segs = [];
@@ -258,6 +260,7 @@ const mouse = { x: -9999, y: -9999, px: -9999, py: -9999, down: false };
 let confPieces = [];
 let confRaf;
 let revealDone = false;
+let autoRevealTimer = null;
 
 // ─────────────────────────────────────────────
 //  PAPER TEAR SOUND ENGINE
@@ -376,9 +379,11 @@ function initCloth() {
   pts = [];
   segs = [];
   revealDone = false;
+  clearAutoRevealTimer();
   replayBtn.classList.remove('visible');
   nextBtn.classList.remove('visible');
   nextHint.classList.remove('visible');
+  hint.innerText = '✦ Grab & tear the cloth';
   hint.style.opacity = '1';
 
   // Draw cloth image at full screen resolution into sampler
@@ -477,7 +482,7 @@ function update() {
   }
 
   // Mouse cut: tear sticks near cursor when dragging fast
-  if (mouse.down && mspeed > 4) {
+  if (mouse.down && mspeed > MOUSE_CUT_SPEED) {
     for (const s of segs) {
       if (s.torn) continue;
       const mx = (s.a.x + s.b.x) * 0.5;
@@ -503,19 +508,29 @@ function update() {
   // Check reveal progress
   if (!revealDone) {
     const tornCount = segs.filter(s => s.torn).length;
-    const pct = tornCount / segs.length;
-    if (pct > 0.60) {
-      revealDone = true;
-      hint.style.opacity = '0';
-      canvas.style.pointerEvents = 'none';
-      setTimeout(() => {
-        launchConfetti();
-        replayBtn.classList.add('visible');
-        nextBtn.classList.add('visible');
-        nextHint.classList.add('visible');
-      }, 400);
+    if (tornCount > 0 && !autoRevealTimer) {
+      hint.innerText = 'Nice! Taking you to the celebration...';
+      autoRevealTimer = setTimeout(goToCelebration, AUTO_REVEAL_DELAY_MS);
     }
   }
+}
+
+function clearAutoRevealTimer() {
+  if (autoRevealTimer) {
+    clearTimeout(autoRevealTimer);
+    autoRevealTimer = null;
+  }
+}
+
+function goToCelebration() {
+  if (revealDone) return;
+  revealDone = true;
+  clearAutoRevealTimer();
+  hint.style.opacity = '0';
+  canvas.style.pointerEvents = 'none';
+  setTimeout(() => {
+    window.location.href = 'celebration.html';
+  }, 400);
 }
 
 // ─────────────────────────────────────────────
@@ -751,6 +766,7 @@ replayBtn.addEventListener('click', () => {
   cc.innerHTML = `<div id="cake-emoji">🎂</div><h2 id="cake-title">Make a Wish!</h2>`;
   stopTearSound();
   resetTearCount();
+  clearAutoRevealTimer();
   confPieces = [];
   confCtx.clearRect(0, 0, W, H);
   resize();
