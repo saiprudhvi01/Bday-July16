@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 <title>🎉 Birthday Magic Deluxe</title>
 <style>
   :root{
@@ -30,6 +30,8 @@
       linear-gradient(120deg, var(--bg1), var(--bg2) 48%, var(--bg3));
     background-size:200% 200%;
     animation:bgShift 14s ease-in-out infinite;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
   }
 
   @keyframes bgShift{
@@ -138,7 +140,7 @@
   }
 
   h1{
-    font-size:clamp(2.3rem, 6vw, 4.8rem);
+    font-size:clamp(2.1rem, 6vw, 4.8rem);
     line-height:1.04;
     margin-bottom:14px;
     letter-spacing:.4px;
@@ -183,6 +185,8 @@
     transition:transform .2s ease, box-shadow .2s ease, filter .2s ease;
     animation:btnFloat 2.8s ease-in-out infinite;
     will-change:transform, opacity;
+    min-height:48px;
+    min-width:180px;
   }
 
   .btn:hover{
@@ -227,7 +231,7 @@
   }
 
   .moon-title{
-    font-size:clamp(2rem, 5vw, 3.7rem);
+    font-size:clamp(1.9rem, 5vw, 3.7rem);
     margin-bottom:10px;
     background:linear-gradient(90deg, #fff, #7cffb2, #49d9ff, #ff4fd8, #fff);
     background-size:300% 100%;
@@ -304,7 +308,7 @@
   }
 
   #cake{
-    font-size:clamp(7rem, 16vw, 11rem);
+    font-size:clamp(6rem, 16vw, 11rem);
     cursor:pointer;
     display:inline-block;
     transform-origin:center;
@@ -332,7 +336,7 @@
 
   .wish-text{
     margin-top:18px;
-    font-size:clamp(1.05rem, 2vw, 1.35rem);
+    font-size:clamp(1.02rem, 2vw, 1.35rem);
     animation:shineText 2.8s ease-in-out infinite;
   }
 
@@ -342,8 +346,8 @@
   }
 
   .celebration-title{
-    font-size:clamp(2.2rem, 7vw, 5.1rem);
-    margin-bottom:18px;
+    font-size:clamp(2rem, 7vw, 5.1rem);
+    margin-bottom:16px;
     animation:celebrateIn .9s cubic-bezier(.2,1.2,.2,1), partyBounce 1.8s ease-in-out infinite 1s;
     position:relative;
     z-index:3;
@@ -362,7 +366,7 @@
   }
 
   .celebration-message{
-    font-size:clamp(1.02rem, 2.2vw, 1.42rem);
+    font-size:clamp(0.98rem, 2.2vw, 1.42rem);
     line-height:1.7;
     max-width:640px;
     padding:14px 18px;
@@ -411,19 +415,6 @@
 
   .hidden{display:none !important}
 
-  @media (max-width:640px){
-    .panel{padding:18px 12px;border-radius:24px}
-    .stage{padding:18px 12px}
-    .candle{font-size:2.5rem}
-    .btn{padding:14px 24px;font-size:.95rem}
-    .moon-gate{padding:20px 14px 14px}
-    .celebration-message{padding:12px 14px}
-  }
-
-  @media (prefers-reduced-motion: reduce){
-    *{animation-duration:.01ms !important;animation-iteration-count:1 !important;transition-duration:.01ms !important;scroll-behavior:auto !important}
-  }
-
   #celebrationStage{
     position:relative;
     overflow:hidden;
@@ -433,7 +424,7 @@
     content:"";
     position:absolute;
     inset:0;
-    background:linear-gradient(180deg, rgba(0,0,0,.25), rgba(0,0,0,.60));
+    background:linear-gradient(180deg, rgba(0,0,0,.22), rgba(0,0,0,.60));
     z-index:0;
     pointer-events:none;
   }
@@ -451,6 +442,7 @@
     width:100%;
     height:100%;
     object-fit:cover;
+    object-position:center center;
     opacity:.62;
     transform-origin:center center;
     animation:
@@ -496,14 +488,6 @@
     -webkit-backdrop-filter:blur(10px);
   }
 
-  @media (max-width:640px){
-    #celebrationTextWrap{
-      width:min(92vw, 100%);
-      padding:14px 12px;
-      border-radius:20px;
-    }
-  }
-
   .glitter-chip{
     position:absolute;
     width:8px;
@@ -519,6 +503,140 @@
   @keyframes chipFly{
     0%{transform:translate(0,0) scale(.8) rotate(0deg);opacity:1}
     100%{transform:translate(var(--dx), var(--dy)) scale(0) rotate(720deg);opacity:0}
+  }
+
+  @media (max-width: 900px){
+    #container{
+      width:min(96vw, 900px);
+      padding:16px;
+      min-height:100vh;
+    }
+    .panel{
+      min-height:calc(100vh - 32px);
+      border-radius:28px;
+    }
+  }
+
+  @media (max-width:640px){
+    html,body{
+      overflow:hidden;
+    }
+
+    #container{
+      width:100vw;
+      height:100vh;
+      padding:8px;
+      min-height:100vh;
+    }
+
+    .panel{
+      min-height:calc(100vh - 16px);
+      padding:14px 10px;
+      border-radius:22px;
+    }
+
+    .stage{
+      padding:14px 10px;
+    }
+
+    .moon-gate{
+      width:100%;
+      padding:16px 12px 14px;
+      border-radius:18px;
+      margin-bottom:14px;
+    }
+
+    .moon-title{
+      font-size:clamp(1.7rem, 9vw, 2.6rem);
+    }
+
+    .moon-sub{
+      font-size:clamp(.92rem, 4.2vw, 1.05rem);
+    }
+
+    h1{
+      font-size:clamp(1.9rem, 8vw, 2.8rem);
+      margin-bottom:12px;
+    }
+
+    p{
+      font-size:clamp(.95rem, 4.1vw, 1.05rem);
+      line-height:1.5;
+      max-width:92vw;
+    }
+
+    .btn{
+      margin-top:20px;
+      padding:14px 22px;
+      font-size:.92rem;
+      min-width:170px;
+      min-height:46px;
+      letter-spacing:1.2px;
+    }
+
+    .candle{
+      font-size:2.25rem;
+    }
+
+    #cake{
+      font-size:clamp(5rem, 24vw, 7rem);
+    }
+
+    .celebration-title{
+      font-size:clamp(1.9rem, 9vw, 3rem);
+      margin-bottom:12px;
+    }
+
+    .celebration-message{
+      font-size:clamp(.94rem, 4vw, 1.05rem);
+      line-height:1.55;
+      padding:12px 12px;
+      border-radius:18px;
+    }
+
+    #celebrationTextWrap{
+      width:94vw;
+      padding:12px 10px;
+      border-radius:18px;
+    }
+
+    #celebrationPhoto{
+      opacity:.58;
+      animation:
+        bgFloat 8s ease-in-out infinite,
+        bgRotate 22s linear infinite,
+        bgPulse 4.2s ease-in-out infinite,
+        bgGlowShift 5.5s ease-in-out infinite;
+    }
+
+    .float-element{
+      font-size:1.2rem;
+    }
+
+    .sparkle-line{
+      width:min(300px, 76vw);
+      margin-top:12px;
+    }
+  }
+
+  @media (max-width: 420px){
+    .moon-gate{
+      padding:14px 10px 12px;
+    }
+    .btn{
+      width:100%;
+      max-width:260px;
+    }
+    .candle-row{
+      gap:8px;
+    }
+    .candle{
+      font-size:2rem;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{animation-duration:.01ms !important;animation-iteration-count:1 !important;transition-duration:.01ms !important;scroll-behavior:auto !important}
   }
 </style>
 </head>
@@ -582,9 +700,7 @@ function playBirthdaySongNow() {
   if (songStarted) return;
   songStarted = true;
   birthdaySong.muted = false;
-  birthdaySong.play().catch(() => {
-    songStarted = false;
-  });
+  birthdaySong.play().catch(() => { songStarted = false; });
 }
 
 const canvas = document.getElementById('particleCanvas');
@@ -682,6 +798,7 @@ function shakePanel(){
 }
 
 function startIntro(){
+  playBirthdaySongNow();
   document.getElementById('introStage').classList.remove('active');
   document.getElementById('candleStage').classList.add('active');
   burst(W*0.5, H*0.36, 'sparkle', mobile ? 16 : 26);
@@ -738,14 +855,14 @@ document.addEventListener('click', (e) => {
     document.getElementById('celebrationStage').classList.add('active');
     const confettiBursts = mobile ? 5 : 7;
     const perBurstCount = mobile ? 14 : 28;
-    const sparkleRuns = mobile ? 30 : 80;
+    const sparkleRuns = mobile ? 18 : 48;
     for(let i=0;i<confettiBursts;i++){
       setTimeout(() => burst(Math.random() * W, Math.random() * H * 0.5 + H * 0.08, 'confetti', perBurstCount), i * 120);
     }
     for(let i=0;i<sparkleRuns;i++){
-      setTimeout(() => burst(Math.random() * W, Math.random() * H, 'sparkle', mobile ? 3 : 5), i * 22);
+      setTimeout(() => burst(Math.random() * W, Math.random() * H, 'sparkle', mobile ? 3 : 5), i * 30);
     }
-    burst(W*0.5, H*0.25, 'sparkle', mobile ? 18 : 30);
+    burst(W*0.5, H*0.25, 'sparkle', mobile ? 14 : 24);
     playSound(0.2, 680, 0.28);
     animRunning = true;
     animate();
@@ -756,18 +873,18 @@ document.addEventListener('click', (e) => {
 function launchDiscoGlitter(){
   const stage = document.getElementById('celebrationStage');
   const colors = ['#ff4fd8','#49d9ff','#ffd86b','#7cffb2','#ffffff','#b17cff'];
-  for(let i=0;i<18;i++){
+  for(let i=0;i<12;i++){
     setTimeout(() => {
       const chip = document.createElement('div');
       chip.className = 'glitter-chip';
       chip.style.left = (50 + (Math.random() * 50 - 25)) + '%';
       chip.style.top = (45 + (Math.random() * 30 - 15)) + '%';
       chip.style.color = colors[i % colors.length];
-      chip.style.setProperty('--dx', (Math.random() * 220 - 110) + 'px');
-      chip.style.setProperty('--dy', (Math.random() * 180 - 90) + 'px');
+      chip.style.setProperty('--dx', (Math.random() * 180 - 90) + 'px');
+      chip.style.setProperty('--dy', (Math.random() * 150 - 75) + 'px');
       stage.appendChild(chip);
       setTimeout(() => chip.remove(), 1900);
-    }, i * 90);
+    }, i * 100);
   }
 }
 
