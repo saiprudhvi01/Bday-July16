@@ -8,10 +8,7 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html, body {
       width: 100%; height: 100%;
-      background:
-        radial-gradient(circle at top, rgba(255, 201, 102, 0.18), transparent 34%),
-        radial-gradient(circle at bottom right, rgba(155, 111, 216, 0.18), transparent 28%),
-        linear-gradient(180deg, #130016 0%, #09010d 55%, #050008 100%);
+      background: #0a0010;
       overflow: hidden;
       font-family: 'Georgia', serif;
     }
@@ -29,8 +26,6 @@
       inset: 0;
       background: url('photo.png') center/cover no-repeat;
       z-index: 0;
-      filter: saturate(1.08) contrast(1.04) brightness(0.95);
-      transform: scale(1.02);
     }
 
     /* Cloth canvas sits on top */
@@ -40,7 +35,6 @@
       z-index: 2;
       cursor: crosshair;
       touch-action: none;
-      transition: opacity 0.9s ease;
     }
 
     /* Confetti above everything */
@@ -67,61 +61,25 @@
       transition: opacity 0.6s ease;
     }
 
-    #title-badge {
+    #next-hint {
       position: absolute;
-      top: 18px;
+      top: 50%;
       left: 50%;
-      transform: translateX(-50%);
-      z-index: 5;
-      color: #fff8df;
-      text-align: center;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      text-shadow: 0 0 22px rgba(245, 200, 66, 0.4);
-      pointer-events: none;
-      transition: opacity 0.8s ease, transform 0.8s ease;
-    }
-    #title-badge .name {
-      display: block;
-      font-size: clamp(28px, 6vw, 56px);
-      font-weight: 700;
-      animation: floatText 4s ease-in-out infinite;
-    }
-    #title-badge .date {
-      display: block;
-      margin-top: 6px;
-      font-size: clamp(12px, 1.8vw, 16px);
-      color: rgba(255, 240, 198, 0.88);
-    }
-
-    #scene-status {
-      position: absolute;
-      left: 50%;
-      top: 78px;
-      transform: translateX(-50%);
-      z-index: 5;
+      transform: translate(-50%, -50%);
       color: #fff;
-      background: rgba(7, 4, 18, 0.42);
-      border: 1px solid rgba(245, 200, 66, 0.24);
-      backdrop-filter: blur(10px);
-      border-radius: 999px;
-      padding: 8px 16px;
-      font-size: 13px;
-      letter-spacing: 0.09em;
-      text-transform: uppercase;
-      box-shadow: 0 0 22px rgba(245, 200, 66, 0.12);
+      font-size: clamp(18px, 4vw, 32px);
+      background: rgba(0, 0, 0, 0.65);
+      padding: 16px 26px;
+      border-radius: 40px;
+      letter-spacing: 0.08em;
+      text-align: center;
+      z-index: 6;
+      opacity: 0;
       pointer-events: none;
-      transition: opacity 0.8s ease, transform 0.8s ease;
+      transition: opacity 0.4s ease;
     }
-
-    .floating-star {
-      position: absolute;
-      z-index: 1;
-      color: rgba(255, 244, 199, 0.66);
-      font-size: 14px;
-      animation: drift 12s linear infinite;
-      pointer-events: none;
-      user-select: none;
+    #next-hint.visible {
+      opacity: 1;
     }
 
     #replay {
@@ -145,7 +103,6 @@
     #replay.visible { opacity: 1; }
 
     #next-btn {
-      display: none;
       position: absolute;
       bottom: 20px;
       right: 20px;
@@ -170,16 +127,6 @@
       0%, 100% { transform: scale(1); }
       50% { transform: scale(1.12); }
     }
-    @keyframes floatText {
-      0%, 100% { transform: translateY(0px); }
-      50% { transform: translateY(-6px); }
-    }
-    @keyframes drift {
-      0% { transform: translate3d(0, 18px, 0) rotate(0deg); opacity: 0; }
-      15% { opacity: 1; }
-      50% { transform: translate3d(16px, -10px, 0) rotate(180deg); }
-      100% { transform: translate3d(-8px, -28px, 0) rotate(360deg); opacity: 0; }
-    }
     @keyframes flicker {
       0%, 100% { opacity: 1; }
       45% { opacity: 0.85; }
@@ -191,83 +138,40 @@
       display: flex; flex-direction: column;
       align-items: center; justify-content: center;
       opacity: 0; pointer-events: none;
-      transform: translateY(80px) scale(0.98);
+      transform: translateY(80px);
       transition: opacity 1.2s ease, transform 1.2s ease;
       z-index: 10;
-      background:
-        radial-gradient(circle at top, rgba(255, 215, 120, 0.18), transparent 26%),
-        radial-gradient(circle at bottom, rgba(155, 111, 216, 0.20), transparent 34%),
-        rgba(0, 0, 0, 0.58);
-      backdrop-filter: blur(8px);
+      background: rgba(0, 0, 0, 0.55);
     }
     #cake-container.visible {
       opacity: 1; pointer-events: auto;
-      transform: translateY(0) scale(1);
-    }
-    #cake-container::before,
-    #cake-container::after {
-      content: "✦";
-      position: absolute;
-      color: rgba(255, 243, 201, 0.7);
-      font-size: 20px;
-      animation: floatStar 5s ease-in-out infinite;
-      pointer-events: none;
-    }
-    #cake-container::before { top: 15%; left: 12%; }
-    #cake-container::after { top: 18%; right: 14%; animation-delay: 1.4s; }
-    @keyframes floatStar {
-      0%, 100% { transform: translateY(0px) scale(1); opacity: 0.55; }
-      50% { transform: translateY(-18px) scale(1.2); opacity: 1; }
-    }
-    #cake-card {
-      position: relative;
-      padding: 28px 24px 32px;
-      border-radius: 30px;
-      background: linear-gradient(180deg, rgba(30, 10, 44, 0.76), rgba(10, 5, 18, 0.88));
-      border: 1px solid rgba(245, 200, 66, 0.22);
-      box-shadow: 0 18px 70px rgba(0, 0, 0, 0.42), 0 0 30px rgba(245, 200, 66, 0.08);
-      text-align: center;
-      max-width: min(92vw, 520px);
-    }
-    #cake-ribbon {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 14px;
-      padding: 8px 16px;
-      border-radius: 999px;
-      background: rgba(245, 200, 66, 0.12);
-      border: 1px solid rgba(245, 200, 66, 0.22);
-      color: #ffe9a8;
-      font-size: 12px;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
+      transform: translateY(0);
     }
     #cake-emoji {
-      font-size: clamp(88px, 18vw, 132px);
-      animation: pulse 2s infinite ease-in-out, flicker 1.8s infinite ease-in-out, floatText 4s ease-in-out infinite;
+      font-size: 100px;
+      animation: pulse 2s infinite ease-in-out, flicker 1.8s infinite ease-in-out;
       filter: drop-shadow(0 0 18px rgba(255,200,80,0.7));
+    }
+    #cake-candles {
+      margin-top: 16px;
+      font-size: 34px;
+      letter-spacing: 0.18em;
+      animation: flicker 1.8s infinite ease-in-out;
     }
     #cake-title {
       color: #fff;
       font-family: 'Georgia', serif;
-      margin-top: 18px;
-      font-size: clamp(24px, 5vw, 40px);
+      margin-top: 20px;
+      font-size: clamp(22px, 5vw, 36px);
       text-shadow: 0 0 18px rgba(255,180,60,0.8), 0 2px 8px rgba(0,0,0,0.6);
       letter-spacing: 0.04em;
     }
-    #cake-subtitle {
-      margin-top: 10px;
-      color: rgba(255, 244, 207, 0.85);
-      font-size: clamp(14px, 2.3vw, 18px);
-      line-height: 1.5;
-      max-width: 42ch;
-    }
+    #cut-cake,
     #blow-candles {
-      margin-top: 26px;
+      margin-top: 30px;
       padding: 12px 30px;
       cursor: pointer;
-      background: linear-gradient(180deg, #ffe08a 0%, #F5C842 100%);
+      background: #F5C842;
       border: none;
       border-radius: 30px;
       font-weight: bold;
@@ -280,47 +184,27 @@
     #wish-msg {
       color: #F5C842;
       font-family: 'Georgia', serif;
-      font-size: clamp(30px, 8vw, 62px);
+      font-size: clamp(28px, 7vw, 56px);
       text-align: center;
       text-shadow: 0 0 24px rgba(245,200,66,0.8), 0 2px 10px rgba(0,0,0,0.7);
       animation: pulse 1.6s infinite ease-in-out;
       padding: 0 20px;
-    }
-    #wish-sub {
-      color: rgba(255, 244, 207, 0.9);
-      margin-top: 12px;
-      font-size: clamp(15px, 2.3vw, 20px);
-      text-align: center;
-      max-width: 46ch;
-      line-height: 1.55;
     }
   </style>
 </head>
 <body>
 <div id="app">
   <div id="photo-bg"></div>
-  <div id="title-badge">
-    <span class="name">Akshitha</span>
-    <span class="date">Birthday sparkle • Jul 16</span>
-  </div>
-  <div id="scene-status">Tear the cloth to reveal the surprise</div>
-  <span class="floating-star" style="left:10%; top:18%; animation-delay:0s;">✦</span>
-  <span class="floating-star" style="left:82%; top:24%; animation-delay:1.2s;">✦</span>
-  <span class="floating-star" style="left:16%; top:72%; animation-delay:2s;">✦</span>
-  <span class="floating-star" style="left:70%; top:76%; animation-delay:3s;">✦</span>
   <canvas id="cloth-canvas"></canvas>
   <canvas id="confetti-canvas"></canvas>
   <div id="hint">✦ Grab &amp; tear the cloth</div>
+  <div id="next-hint">Click <strong>Next</strong> to continue</div>
   <button id="replay">↺ Replay</button>
   <button id="next-btn">Next →</button>
   <div id="cake-container">
-    <div id="cake-card">
-      <div id="cake-ribbon">Happy Birthday, Akshitha • Jul 16</div>
-      <div id="cake-emoji">🎂</div>
-      <h2 id="cake-title">A little celebration, just for you</h2>
-      <p id="cake-subtitle">The photo reveal is only the beginning — let’s light the candles, make a wish, and celebrate Akshitha in a brighter, more magical way.</p>
-      <button id="blow-candles">🕯️ Blow out the candles</button>
-    </div>
+    <div id="cake-emoji">🎂</div>
+    <h2 id="cake-title">Make a Wish!</h2>
+    <button id="blow-candles">🕯️ Blow out the candles</button>
   </div>
 </div>
 
@@ -334,8 +218,7 @@ const confCvs  = document.getElementById('confetti-canvas');
 const confCtx  = confCvs.getContext('2d');
 const app      = document.getElementById('app');
 const hint     = document.getElementById('hint');
-const sceneStatus = document.getElementById('scene-status');
-const clothCanvas = canvas;
+const nextHint = document.getElementById('next-hint');
 const replayBtn= document.getElementById('replay');
 const nextBtn  = document.getElementById('next-btn');
 
@@ -375,10 +258,6 @@ const mouse = { x: -9999, y: -9999, px: -9999, py: -9999, down: false };
 let confPieces = [];
 let confRaf;
 let revealDone = false;
-let revealTimer = null;
-let revealCountdownTimer = null;
-let revealCountdown = 5;
-let autoAdvanceStarted = false;
 
 // ─────────────────────────────────────────────
 //  PAPER TEAR SOUND ENGINE
@@ -497,17 +376,10 @@ function initCloth() {
   pts = [];
   segs = [];
   revealDone = false;
-  autoAdvanceStarted = false;
-  clearTimeout(revealTimer);
-  clearInterval(revealCountdownTimer);
   replayBtn.classList.remove('visible');
   nextBtn.classList.remove('visible');
+  nextHint.classList.remove('visible');
   hint.style.opacity = '1';
-  sceneStatus.textContent = 'Tear the cloth to reveal the surprise';
-  sceneStatus.style.opacity = '1';
-  sceneStatus.style.transform = 'translateX(-50%) translateY(0)';
-  clothCanvas.style.opacity = '1';
-  clothCanvas.style.pointerEvents = 'auto';
 
   // Draw cloth image at full screen resolution into sampler
   sampler.width  = W;
@@ -632,28 +504,16 @@ function update() {
   if (!revealDone) {
     const tornCount = segs.filter(s => s.torn).length;
     const pct = tornCount / segs.length;
-    if (pct > 0.30) {
+    if (pct > 0.60) {
       revealDone = true;
       hint.style.opacity = '0';
       canvas.style.pointerEvents = 'none';
-      sceneStatus.textContent = 'Photo revealed — cake scene in 5 seconds';
-      sceneStatus.style.transform = 'translateX(-50%) translateY(-4px)';
-      clothCanvas.style.opacity = '0';
-      if (!autoAdvanceStarted) {
-        autoAdvanceStarted = true;
-        revealCountdown = 5;
-        clearInterval(revealCountdownTimer);
-        revealCountdownTimer = setInterval(() => {
-          revealCountdown -= 1;
-          if (revealCountdown > 0) {
-            sceneStatus.textContent = `Photo revealed — cake scene in ${revealCountdown} seconds`;
-          }
-        }, 1000);
-        revealTimer = setTimeout(() => {
-          clearInterval(revealCountdownTimer);
-          enterCakeScene();
-        }, 5000);
-      }
+      setTimeout(() => {
+        launchConfetti();
+        replayBtn.classList.add('visible');
+        nextBtn.classList.add('visible');
+        nextHint.classList.add('visible');
+      }, 400);
     }
   }
 }
@@ -742,22 +602,6 @@ function draw() {
     }
   }
 
-  // Only draw text while cloth is still being torn
-  if (!revealDone) {
-    ctx.save();
-    ctx.clip(clothPath);
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.font = `700 ${Math.min(W * 0.12, H * 0.13, 86)}px Georgia, serif`;
-    ctx.lineWidth = Math.max(4, Math.min(W, H) * 0.008);
-    ctx.strokeStyle = 'rgba(45, 12, 55, 0.72)';
-    ctx.fillStyle = '#fff4c7';
-    ctx.shadowColor = 'rgba(0, 0, 0, 0.45)';
-    ctx.shadowBlur = 10;
-    ctx.strokeText('Happy Birthday', W / 2, H * 0.48);
-    ctx.fillText('Happy Birthday', W / 2, H * 0.48);
-    ctx.restore();
-  }
 }
 
 // ─────────────────────────────────────────────
@@ -773,19 +617,6 @@ function launchConfetti() {
   }));
   cancelAnimationFrame(confRaf);
   tickConfetti();
-}
-
-function enterCakeScene() {
-  clearTimeout(revealTimer);
-  clearInterval(revealCountdownTimer);
-  launchConfetti();
-  launchConfetti();
-  replayBtn.classList.add('visible');
-  nextBtn.classList.remove('visible');
-  const cakeContainer = document.getElementById('cake-container');
-  cakeContainer.classList.add('visible');
-  sceneStatus.textContent = 'Time for candles and cake';
-  sceneStatus.style.opacity = '0';
 }
 
 function tickConfetti() {
@@ -873,35 +704,51 @@ window.addEventListener('touchend', () => {
   stopTearSound();
 });
 
-function blowCandles() {
+function showCakeScene() {
   const cc = document.getElementById('cake-container');
-  cc.innerHTML = '<div id="wish-msg">Happy Birthday, Akshitha! 🎉</div><div id="wish-sub">Jul 16 belongs to you — may every wish you make today come back brighter.</div>';
+  cc.innerHTML = `
+    <div id="cake-stage">
+      <div id="cake-emoji">🎂</div>
+      <div id="cake-candles">🕯️🕯️🕯️🕯️🕯️</div>
+      <h2 id="cake-title">Make a wish and cut the cake!</h2>
+      <button id="cut-cake">Cut the Cake</button>
+    </div>
+  `;
+  cc.classList.add('visible');
   launchConfetti();
-  setTimeout(launchConfetti, 800);
-  setTimeout(launchConfetti, 1600);
+  setTimeout(launchConfetti, 700);
+  setTimeout(launchConfetti, 1400);
+  const cutBtn = cc.querySelector('#cut-cake');
+  cutBtn.addEventListener('click', cutCake);
 }
 
-document.getElementById('blow-candles').addEventListener('click', blowCandles);
+function cutCake() {
+  const cc = document.getElementById('cake-container');
+  const cakeEmoji = cc.querySelector('#cake-emoji');
+  cakeEmoji.textContent = '🍰';
+  cakeEmoji.style.transform = 'scale(1.2) rotate(-10deg)';
+  cakeEmoji.style.transition = 'transform 0.25s ease';
+  const title = cc.querySelector('#cake-title');
+  if (title) title.textContent = 'Cake Served!';
+  const cutBtn = cc.querySelector('#cut-cake');
+  if (cutBtn) cutBtn.textContent = 'Enjoy!';
+  launchConfetti();
+  setTimeout(() => {
+    cakeEmoji.style.transform = 'scale(1) rotate(0deg)';
+  }, 300);
+}
 
-// Next button click handler — customize the URL below!
 nextBtn.addEventListener('click', () => {
-  enterCakeScene();
+  nextBtn.classList.remove('visible');
+  nextHint.classList.remove('visible');
+  showCakeScene();
 });
 
 replayBtn.addEventListener('click', () => {
   canvas.style.pointerEvents = 'auto';
   const cc = document.getElementById('cake-container');
   cc.classList.remove('visible');
-  cc.innerHTML = `
-    <div id="cake-card">
-      <div id="cake-ribbon">Happy Birthday, Akshitha • Jul 16</div>
-      <div id="cake-emoji">🎂</div>
-      <h2 id="cake-title">A little celebration, just for you</h2>
-      <p id="cake-subtitle">The photo reveal is only the beginning — let’s light the candles, make a wish, and celebrate Akshitha in a brighter, more magical way.</p>
-      <button id="blow-candles">🕯️ Blow out the candles</button>
-    </div>`;
-  // Re-attach listener since innerHTML was reset
-  cc.querySelector('#blow-candles').addEventListener('click', blowCandles);
+  cc.innerHTML = `<div id="cake-emoji">🎂</div><h2 id="cake-title">Make a Wish!</h2>`;
   stopTearSound();
   resetTearCount();
   confPieces = [];
