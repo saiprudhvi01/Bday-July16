@@ -898,6 +898,34 @@
     @media (prefers-reduced-motion: reduce) {
       * {
         animation-duration: .01ms !important;
+    /* Full-screen final image overlay */
+    #final-image{
+      position:fixed;
+      inset:0;
+      z-index:9999;
+      display:none;
+      align-items:center;
+      justify-content:center;
+      background-position:center center;
+      background-size:cover;
+      background-repeat:no-repeat;
+      height:100dvh; /* mobile-friendly full viewport */
+    }
+    #final-image.visible{display:flex}
+    .final-caption{
+      width:100%;
+      padding:18px 20px;
+      margin:0 12px 36px;
+      max-width:1100px;
+      text-align:center;
+      background:linear-gradient(180deg, rgba(0,0,0,0.45), rgba(0,0,0,0.25));
+      color:var(--white);
+      border-radius:14px;
+      font-size:clamp(16px, 4vw, 22px);
+      box-shadow:0 8px 40px rgba(0,0,0,0.5);
+      backdrop-filter:blur(6px);
+      pointer-events:auto;
+    }
         animation-iteration-count: 1 !important;
         transition-duration: .01ms !important;
         scroll-behavior: auto !important
@@ -1133,8 +1161,36 @@
         animRunning = true;
         animate();
         launchDiscoGlitter();
+            // show final image overlay after celebration animations
+            setTimeout(() => {
+              showFinalImage('photo.png', 'Happy Birthday!');
+            }, 1100);
       }
     });
+
+        // show / hide final image overlay
+        function showFinalImage(src, caption) {
+          const el = document.getElementById('final-image');
+          const cap = document.getElementById('final-caption');
+          if (!el) return;
+          el.style.backgroundImage = `url(${src})`;
+          if (cap) cap.textContent = caption || '';
+          el.classList.add('visible');
+          el.setAttribute('aria-hidden', 'false');
+          // stop interaction below
+          document.body.style.overflow = 'hidden';
+        }
+
+        function hideFinalImage() {
+          const el = document.getElementById('final-image');
+          if (!el) return;
+          el.classList.remove('visible');
+          el.setAttribute('aria-hidden', 'true');
+          document.body.style.overflow = '';
+        }
+
+        // close overlay on tap/click
+        document.getElementById('final-image').addEventListener('click', hideFinalImage);
 
     function launchDiscoGlitter() {
       const stage = document.getElementById('celebrationStage');
