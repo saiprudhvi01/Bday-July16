@@ -923,6 +923,13 @@
     birthdaySong.volume = 0.8;
     birthdaySong.crossOrigin = 'anonymous';
 
+    // Restore playback time from index.html if available
+    const savedTime = sessionStorage.getItem('birthdaySongTime');
+    if (savedTime) {
+      birthdaySong.currentTime = parseFloat(savedTime);
+      sessionStorage.removeItem('birthdaySongTime');
+    }
+
     let songStarted = false;
     function playBirthdaySongNow() {
       if (songStarted) return;
