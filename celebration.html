@@ -46,7 +46,17 @@
       width: 100%;
       height: 100%;
       object-fit: cover;
-      z-index: -1;
+      z-index: 0;
+    }
+
+    #particleCanvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+      pointer-events: none;
     }
 
     @keyframes bgShift {
@@ -98,7 +108,7 @@
     canvas {
       position: fixed;
       inset: 0;
-      z-index: 1;
+      z-index: 2;
       pointer-events: none;
     }
 
@@ -948,17 +958,33 @@
     // Ensure background video plays
     const bgVideo = document.getElementById('bg-video');
     function playBgVideo() {
-      if (bgVideo && bgVideo.paused) {
-        bgVideo.play().catch(e => console.log('Video play failed:', e));
+      if (bgVideo) {
+        bgVideo.play().then(() => {
+          console.log('Video playing successfully');
+        }).catch(e => {
+          console.log('Video play failed:', e);
+          // Try with muted if autoplay fails
+          if (!bgVideo.muted) {
+            bgVideo.muted = true;
+            bgVideo.play().catch(err => console.log('Muted video also failed:', err));
+          }
+        });
       }
     }
     
-    // Try to play video on load
+    // Try to play video immediately
+    if (bgVideo) {
+      bgVideo.load();
+      playBgVideo();
+    }
+    
+    // Try to play on load
     window.addEventListener('load', playBgVideo);
     
     // Also try to play on user interaction
     document.addEventListener('click', playBgVideo);
     document.addEventListener('touchstart', playBgVideo);
+    document.addEventListener('keydown', playBgVideo);
 
     const canvas = document.getElementById('particleCanvas');
     const ctx = canvas.getContext('2d');
