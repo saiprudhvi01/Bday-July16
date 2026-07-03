@@ -28,6 +28,21 @@
       z-index: 0;
     }
 
+    /* Mobile-specific styles for full photo visibility */
+    @media (max-width: 768px) {
+      #photo-bg {
+        background-size: contain;
+        background-position: center;
+      }
+    }
+
+    @media (max-width: 480px) {
+      #photo-bg {
+        background-size: contain;
+        background-position: center top;
+      }
+    }
+
     /* Cloth canvas sits on top */
     #cloth-canvas {
       position: absolute;
