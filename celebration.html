@@ -874,7 +874,7 @@
 
 <body>
   <video id="bg-video" autoplay loop muted playsinline>
-    <source src="WhatsApp Video 2026-07-03 at 10.18.09 AM.mp4" type="video/mp4">
+    <source src="background.mp4" type="video/mp4">
   </video>
   <canvas id="particleCanvas"></canvas>
 
@@ -944,6 +944,21 @@
       birthdaySong.muted = false;
       birthdaySong.play().catch(() => { songStarted = false; });
     }
+
+    // Ensure background video plays
+    const bgVideo = document.getElementById('bg-video');
+    function playBgVideo() {
+      if (bgVideo && bgVideo.paused) {
+        bgVideo.play().catch(e => console.log('Video play failed:', e));
+      }
+    }
+    
+    // Try to play video on load
+    window.addEventListener('load', playBgVideo);
+    
+    // Also try to play on user interaction
+    document.addEventListener('click', playBgVideo);
+    document.addEventListener('touchstart', playBgVideo);
 
     const canvas = document.getElementById('particleCanvas');
     const ctx = canvas.getContext('2d');
