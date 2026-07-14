@@ -5,6 +5,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>🎉 Birthday Magic Deluxe</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     :root {
       --bg1: #1a0a2e;
@@ -29,7 +30,7 @@
       height: 100%;
       height: 100dvh;
       overflow: hidden;
-      font-family: Arial, Helvetica, sans-serif;
+      font-family: 'Inter', 'Outfit', Arial, Helvetica, sans-serif;
       color: var(--white);
       background: var(--bg1);
       -webkit-tap-highlight-color: transparent;
@@ -116,7 +117,7 @@
       position: relative;
       z-index: 5;
       width: min(860px, 92vw);
-      min-height: 580px;
+      min-height: min(580px, 100dvh);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -126,7 +127,7 @@
 
     .panel {
       width: 100%;
-      min-height: 540px;
+      min-height: min(540px, calc(100dvh - 52px));
       padding: 32px 22px;
       border-radius: 34px;
       position: relative;
@@ -255,6 +256,7 @@
       will-change: transform, opacity;
       min-height: 48px;
       min-width: 180px;
+      font-family: 'Inter', 'Outfit', sans-serif;
     }
 
     .btn:hover {
@@ -495,6 +497,322 @@
       }
     }
 
+    /* ═══════════════════════════════════════════════
+       LANDSAT STAGE
+       ═══════════════════════════════════════════════ */
+    #landsatStage {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: clamp(10px, 2vh, 20px);
+      padding: clamp(14px, 3vh, 30px) clamp(10px, 3vw, 20px);
+    }
+
+    .landsat-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: clamp(1.5rem, 4vw, 2.4rem);
+      font-weight: 800;
+      text-align: center;
+      background: linear-gradient(135deg, #00d2ff, #3a7bd5, #00d2ff);
+      background-size: 200% 100%;
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: titleGlow 4s linear infinite;
+      margin-bottom: 4px;
+    }
+
+    .landsat-subtitle {
+      font-size: clamp(0.85rem, 2vw, 1.1rem);
+      color: rgba(255, 255, 255, 0.75);
+      text-align: center;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+    }
+
+    .landsat-image-container {
+      position: relative;
+      width: min(100%, 680px);
+      max-height: 50vh;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow:
+        0 0 40px rgba(0, 210, 255, 0.15),
+        0 20px 60px rgba(0, 0, 0, 0.4),
+        inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+      animation: landsatReveal 1.2s cubic-bezier(.2, 1.2, .2, 1);
+    }
+
+    .landsat-image-container::before {
+      content: "";
+      position: absolute;
+      inset: -2px;
+      border-radius: 22px;
+      padding: 2px;
+      background: linear-gradient(135deg, #00d2ff, #3a7bd5, #00b4d8, #00d2ff);
+      -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+      mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      opacity: 0.7;
+      animation: borderFlow 5s linear infinite;
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    .landsat-image-container img {
+      width: 100%;
+      height: 100%;
+      max-height: 50vh;
+      object-fit: contain;
+      display: block;
+      animation: landsatGlow 5s ease-in-out infinite;
+    }
+
+    @keyframes landsatReveal {
+      0% { opacity: 0; transform: scale(0.7) rotateY(20deg); }
+      60% { opacity: 1; transform: scale(1.03) rotateY(-3deg); }
+      100% { transform: scale(1) rotateY(0deg); }
+    }
+
+    @keyframes landsatGlow {
+      0%, 100% { filter: brightness(1) saturate(1.1); }
+      50% { filter: brightness(1.15) saturate(1.3); }
+    }
+
+    .landsat-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 18px;
+      border-radius: 999px;
+      background: rgba(0, 210, 255, 0.1);
+      border: 1px solid rgba(0, 210, 255, 0.25);
+      font-size: clamp(0.75rem, 1.8vw, 0.9rem);
+      color: rgba(255, 255, 255, 0.85);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      font-weight: 600;
+      animation: badgePulse 3s ease-in-out infinite;
+    }
+
+    @keyframes badgePulse {
+      0%, 100% { box-shadow: 0 0 10px rgba(0, 210, 255, 0.1); }
+      50% { box-shadow: 0 0 25px rgba(0, 210, 255, 0.25); }
+    }
+
+    /* ═══════════════════════════════════════════════
+       STARMAP + DID YOU KNOW STAGE
+       ═══════════════════════════════════════════════ */
+    #starmapStage {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      gap: clamp(8px, 1.5vh, 16px);
+      padding: clamp(12px, 2.5vh, 24px) clamp(8px, 2vw, 16px);
+    }
+
+    .starmap-section-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: clamp(1.3rem, 3.5vw, 2rem);
+      font-weight: 800;
+      text-align: center;
+      background: linear-gradient(135deg, #ffd93d, #ff6b35, #ff8fab, #ffd93d);
+      background-size: 200% 100%;
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: titleGlow 4s linear infinite;
+    }
+
+    .starmap-layout {
+      display: flex;
+      gap: 20px;
+      width: 100%;
+      max-width: 800px;
+      align-items: flex-start;
+    }
+
+    .starmap-left {
+      flex: 0 0 42%;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .starmap-image-wrap {
+      position: relative;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow:
+        0 0 30px rgba(131, 56, 236, 0.2),
+        0 16px 48px rgba(0, 0, 0, 0.4);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .starmap-image-wrap::before {
+      content: "";
+      position: absolute;
+      inset: -2px;
+      border-radius: 18px;
+      padding: 2px;
+      background: linear-gradient(135deg, #8338ec, #ffd93d, #ff6b35, #8338ec);
+      -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+      mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      opacity: 0.6;
+      animation: borderFlow 6s linear infinite;
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    .starmap-image-wrap img {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    .starmap-label {
+      text-align: center;
+      font-size: clamp(0.7rem, 1.5vw, 0.82rem);
+      color: rgba(255, 255, 255, 0.55);
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+
+    .starmap-right {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      max-height: min(460px, 60vh);
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+
+    .starmap-right::-webkit-scrollbar {
+      width: 4px;
+    }
+    .starmap-right::-webkit-scrollbar-track {
+      background: rgba(255,255,255,0.05);
+      border-radius: 4px;
+    }
+    .starmap-right::-webkit-scrollbar-thumb {
+      background: rgba(255,255,255,0.15);
+      border-radius: 4px;
+    }
+
+    .fact-card {
+      padding: 10px 14px;
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(8px);
+      color: rgba(255, 255, 255, 0.92);
+      font-size: clamp(0.72rem, 1.5vw, 0.88rem);
+      line-height: 1.45;
+      opacity: 0;
+      transform: translateX(30px) scale(0.92);
+      transition: opacity 0.6s cubic-bezier(.2,.8,.2,1), transform 0.6s cubic-bezier(.2,.8,.2,1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .fact-card.visible {
+      opacity: 1;
+      transform: translateX(0) scale(1);
+    }
+
+    .fact-card::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 3px;
+      height: 100%;
+      border-radius: 3px 0 0 3px;
+    }
+
+    .fact-card:nth-child(1)::before { background: linear-gradient(180deg, #ffd93d, #ff6b35); }
+    .fact-card:nth-child(2)::before { background: linear-gradient(180deg, #ff6b35, #ff8fab); }
+    .fact-card:nth-child(3)::before { background: linear-gradient(180deg, #ff8fab, #8338ec); }
+    .fact-card:nth-child(4)::before { background: linear-gradient(180deg, #8338ec, #00d2ff); }
+    .fact-card:nth-child(5)::before { background: linear-gradient(180deg, #00d2ff, #6BCB77); }
+    .fact-card:nth-child(6)::before { background: linear-gradient(180deg, #6BCB77, #ffd93d); }
+    .fact-card:nth-child(7)::before { background: linear-gradient(180deg, #ffd93d, #ff8fab); }
+    .fact-card:nth-child(8)::before { background: linear-gradient(180deg, #ff8fab, #ff6b35); }
+    .fact-card:nth-child(9)::before { background: linear-gradient(180deg, #ff6b35, #8338ec); }
+    .fact-card:nth-child(10)::before { background: linear-gradient(180deg, #8338ec, #ffd93d); }
+    .fact-card:nth-child(11)::before { background: linear-gradient(180deg, #ffd93d, #00d2ff); }
+    .fact-card:nth-child(12)::before { background: linear-gradient(180deg, #00d2ff, #ff6b35); }
+    .fact-card:nth-child(13)::before { background: linear-gradient(180deg, #ff6b35, #6BCB77); }
+
+    .fact-card .fact-emoji {
+      margin-right: 6px;
+    }
+
+    .fact-card-header {
+      font-family: 'Outfit', sans-serif;
+      font-size: clamp(0.9rem, 2vw, 1.15rem);
+      font-weight: 700;
+      padding: 12px 16px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, rgba(255, 217, 61, 0.12), rgba(255, 107, 53, 0.12));
+      border: 1px solid rgba(255, 217, 61, 0.2);
+      text-align: center;
+      opacity: 0;
+      transform: translateY(-10px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+
+    .fact-card-header.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .fact-card-mission {
+      padding: 12px 16px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, rgba(131, 56, 236, 0.15), rgba(0, 210, 255, 0.1));
+      border: 1px solid rgba(131, 56, 236, 0.2);
+      font-family: 'Outfit', sans-serif;
+      font-size: clamp(0.72rem, 1.5vw, 0.85rem);
+      line-height: 1.6;
+      opacity: 0;
+      transform: translateX(30px);
+      transition: opacity 0.6s cubic-bezier(.2,.8,.2,1), transform 0.6s cubic-bezier(.2,.8,.2,1);
+    }
+
+    .fact-card-mission.visible {
+      opacity: 1;
+      transform: translateX(0);
+    }
+
+    .fact-card-final {
+      padding: 14px 16px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, rgba(255, 107, 53, 0.12), rgba(255, 217, 61, 0.12));
+      border: 1px solid rgba(255, 217, 61, 0.15);
+      text-align: center;
+      font-size: clamp(0.8rem, 1.8vw, 0.95rem);
+      line-height: 1.6;
+      opacity: 0;
+      transform: scale(0.9);
+      transition: opacity 0.8s ease, transform 0.8s cubic-bezier(.2,1.2,.2,1);
+    }
+
+    .fact-card-final.visible {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    /* ═══════════════════════════════════════════════
+       CELEBRATION STAGE (Photo2)
+       ═══════════════════════════════════════════════ */
     .celebration-title {
       font-size: clamp(2rem, 7vw, 5.1rem);
       margin-bottom: 16px;
@@ -626,8 +944,8 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      gap: 24px;
-      padding: 20px;
+      gap: clamp(12px, 2vh, 24px);
+      padding: clamp(10px, 2vh, 20px);
       overflow: hidden;
     }
 
@@ -635,8 +953,8 @@
       position: relative;
       width: min(100vw, 100%);
       max-width: 1100px;
-      height: min(70vh, 80vw);
-      max-height: 78vh;
+      height: min(55vh, 70vw);
+      max-height: 60vh;
       border-radius: 22px;
       overflow: hidden;
       animation: photoReveal 1.2s cubic-bezier(.2, 1.2, .2, 1);
@@ -722,22 +1040,36 @@
       }
     }
 
+    /* ═══════════════════════════════════════════════
+       RESPONSIVE
+       ═══════════════════════════════════════════════ */
+
+    /* ── Tablets & small laptops ── */
     @media (max-width: 900px) {
       #container {
         width: min(96vw, 900px);
-        padding: 16px;
+        padding: 12px;
         min-height: 100vh;
         min-height: 100dvh;
       }
 
       .panel {
-        min-height: calc(100vh - 32px);
-        min-height: calc(100dvh - 32px);
+        min-height: calc(100vh - 24px);
+        min-height: calc(100dvh - 24px);
         border-radius: 28px;
+      }
+
+      .starmap-layout {
+        gap: 14px;
+      }
+
+      .starmap-left {
+        flex: 0 0 38%;
       }
     }
 
-    @media (max-width:640px) {
+    /* ── Mobile phones ── */
+    @media (max-width: 640px) {
 
       html,
       body {
@@ -748,129 +1080,455 @@
         width: 100vw;
         height: 100vh;
         height: 100dvh;
-        padding: 8px;
+        padding: 6px;
         min-height: 100vh;
         min-height: 100dvh;
-        padding-top: max(8px, env(safe-area-inset-top));
-        padding-bottom: max(8px, env(safe-area-inset-bottom));
-        padding-left: max(8px, env(safe-area-inset-left));
-        padding-right: max(8px, env(safe-area-inset-right));
+        padding-top: max(6px, env(safe-area-inset-top));
+        padding-bottom: max(6px, env(safe-area-inset-bottom));
+        padding-left: max(6px, env(safe-area-inset-left));
+        padding-right: max(6px, env(safe-area-inset-right));
       }
 
       .panel {
-        min-height: calc(100vh - 16px);
-        min-height: calc(100dvh - 16px);
-        min-height: calc(100dvh - max(8px, env(safe-area-inset-top)) - max(8px, env(safe-area-inset-bottom)));
-        padding: 14px 10px;
-        border-radius: 22px;
+        min-height: calc(100vh - 12px);
+        min-height: calc(100dvh - 12px);
+        min-height: calc(100dvh - max(6px, env(safe-area-inset-top)) - max(6px, env(safe-area-inset-bottom)));
+        padding: 10px 8px;
+        border-radius: 20px;
         display: flex;
         flex-direction: column;
       }
 
       .stage {
-        padding: 14px 10px;
+        padding: 10px 8px;
       }
 
       .moon-gate {
         width: 100%;
-        padding: 16px 12px 14px;
-        border-radius: 18px;
-        margin-bottom: 14px;
-      }
-
-      .moon-title {
-        font-size: clamp(1.6rem, 8.5vw, 2.3rem);
-      }
-
-      .moon-sub {
-        font-size: clamp(.88rem, 4vw, 1rem);
-        line-height: 1.4;
-      }
-
-      h1 {
-        font-size: clamp(1.7rem, 7.5vw, 2.4rem);
+        padding: 14px 10px 12px;
+        border-radius: 16px;
         margin-bottom: 10px;
       }
 
+      .moon-title {
+        font-size: clamp(1.4rem, 7vw, 2.3rem);
+      }
+
+      .moon-sub {
+        font-size: clamp(.82rem, 3.5vw, 1rem);
+        line-height: 1.35;
+      }
+
+      h1 {
+        font-size: clamp(1.5rem, 6.5vw, 2.4rem);
+        margin-bottom: 8px;
+      }
+
       p {
-        font-size: clamp(.9rem, 3.8vw, 1rem);
-        line-height: 1.45;
-        max-width: 90%;
+        font-size: clamp(.85rem, 3.5vw, 1rem);
+        line-height: 1.4;
+        max-width: 92%;
       }
 
       .btn {
-        margin-top: 18px;
-        padding: 14px 22px;
-        font-size: .88rem;
-        min-width: 160px;
-        min-height: 44px;
+        margin-top: 14px;
+        padding: 12px 20px;
+        font-size: .85rem;
+        min-width: 150px;
+        min-height: 42px;
         letter-spacing: 1px;
       }
 
       .candle {
-        font-size: 2.1rem;
+        font-size: 2rem;
+      }
+
+      .candle-row {
+        gap: 8px;
+        margin: 12px 0;
       }
 
       #cake {
-        font-size: clamp(4.5rem, 20vw, 6.5rem);
+        font-size: clamp(4rem, 18vw, 6rem);
       }
 
-      .celebration-title {
-        font-size: clamp(1.8rem, 8vw, 2.6rem);
-        margin-bottom: 10px;
+      /* LANDSAT mobile */
+      #landsatStage {
+        gap: clamp(8px, 1.5vh, 14px);
+        padding: clamp(10px, 2vh, 20px) 10px;
       }
 
-      .celebration-message {
-        font-size: clamp(.9rem, 3.6vw, 1rem);
-        line-height: 1.5;
-        padding: 12px;
+      .landsat-title {
+        font-size: clamp(1.1rem, 5.5vw, 1.6rem);
+        margin-bottom: 2px;
+      }
+
+      .landsat-subtitle {
+        font-size: clamp(0.72rem, 3vw, 0.9rem);
+        margin-bottom: 4px;
+      }
+
+      .landsat-badge {
+        padding: 5px 12px;
+        font-size: clamp(0.62rem, 2.5vw, 0.78rem);
+        gap: 5px;
+      }
+
+      .landsat-image-container {
+        width: min(100%, 92vw);
+        max-height: 42vh;
+        border-radius: 14px;
+      }
+
+      .landsat-image-container img {
+        max-height: 42vh;
+      }
+
+      .landsat-image-container::before {
         border-radius: 16px;
       }
 
+      /* Starmap mobile: stack vertically */
+      #starmapStage {
+        gap: clamp(6px, 1.2vh, 12px);
+        padding: clamp(8px, 1.5vh, 16px) 8px;
+      }
+
+      .starmap-section-title {
+        font-size: clamp(1rem, 5vw, 1.5rem);
+      }
+
+      .starmap-layout {
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .starmap-left {
+        flex: none;
+        width: min(220px, 60vw);
+      }
+
+      .starmap-image-wrap {
+        border-radius: 12px;
+      }
+
+      .starmap-image-wrap::before {
+        border-radius: 14px;
+      }
+
+      .starmap-label {
+        font-size: clamp(0.6rem, 2.5vw, 0.72rem);
+        margin-top: 4px;
+      }
+
+      .starmap-right {
+        max-height: min(240px, 35vh);
+        width: 100%;
+        gap: 6px;
+      }
+
+      .fact-card {
+        font-size: clamp(0.68rem, 3vw, 0.82rem);
+        padding: 7px 10px 7px 14px;
+        border-radius: 10px;
+      }
+
+      .fact-card-header {
+        font-size: clamp(0.78rem, 3.5vw, 0.95rem);
+        padding: 8px 12px;
+        border-radius: 10px;
+      }
+
+      .fact-card-mission {
+        font-size: clamp(0.65rem, 2.8vw, 0.78rem);
+        padding: 8px 12px;
+        border-radius: 10px;
+        line-height: 1.5;
+      }
+
+      .fact-card-final {
+        font-size: clamp(0.68rem, 3vw, 0.85rem);
+        padding: 8px 12px;
+        border-radius: 10px;
+      }
+
+      /* Celebration mobile */
+      .celebration-title {
+        font-size: clamp(1.6rem, 7vw, 2.4rem);
+        margin-bottom: 8px;
+      }
+
+      .celebration-message {
+        font-size: clamp(.82rem, 3.2vw, 1rem);
+        line-height: 1.45;
+        padding: 8px;
+        border-radius: 14px;
+      }
+
       .celebration-photo-container {
-        width: min(350px, 80vw);
-        height: min(350px, 80vw);
+        width: min(90vw, 100%);
+        height: min(45vh, 70vw);
+        max-height: 50vh;
+        border-radius: 16px;
       }
 
       #celebrationStage {
-        gap: 18px;
-        padding: 16px 12px;
+        gap: clamp(10px, 2vh, 18px);
+        padding: clamp(8px, 1.5vh, 16px) 10px;
       }
 
       .celebration-content {
-        padding: 0 8px;
+        padding: 0 6px;
       }
 
       .float-element {
-        font-size: 1.1rem;
+        font-size: 1rem;
       }
 
       .sparkle-line {
-        width: min(280px, 72vw);
-        margin-top: 10px;
+        width: min(240px, 68vw);
+        margin-top: 8px;
       }
     }
 
-    @media (max-width: 420px) {
+    /* ── Ultra small phones (320px, iPhone SE, etc.) ── */
+    @media (max-width: 380px) {
+      #container {
+        padding: 4px;
+      }
+
+      .panel {
+        padding: 8px 6px;
+        border-radius: 16px;
+      }
+
+      .stage {
+        padding: 8px 6px;
+      }
+
       .moon-gate {
-        padding: 14px 10px 12px;
+        padding: 10px 8px;
+        border-radius: 14px;
+      }
+
+      .moon-title {
+        font-size: clamp(1.2rem, 7vw, 1.8rem);
       }
 
       .btn {
         width: 100%;
-        max-width: 240px;
+        max-width: 220px;
+        padding: 11px 16px;
+        font-size: .8rem;
+        min-height: 40px;
       }
 
       .candle-row {
-        gap: 6px;
+        gap: 5px;
       }
 
       .candle {
-        font-size: 1.8rem;
+        font-size: 1.6rem;
       }
 
       #cake {
-        font-size: clamp(4rem, 22vw, 5.5rem);
+        font-size: clamp(3.5rem, 20vw, 5rem);
+      }
+
+      .landsat-title {
+        font-size: clamp(1rem, 5vw, 1.3rem);
+      }
+
+      .landsat-image-container {
+        max-height: 38vh;
+      }
+
+      .landsat-image-container img {
+        max-height: 38vh;
+      }
+
+      .starmap-left {
+        width: min(180px, 55vw);
+      }
+
+      .starmap-right {
+        max-height: min(200px, 32vh);
+        gap: 5px;
+      }
+
+      .fact-card {
+        font-size: clamp(0.62rem, 2.8vw, 0.75rem);
+        padding: 6px 8px 6px 12px;
+      }
+
+      .celebration-photo-container {
+        height: min(40vh, 65vw);
+        max-height: 42vh;
+      }
+
+      .celebration-title {
+        font-size: clamp(1.3rem, 7vw, 2rem);
+      }
+    }
+
+    /* ── Landscape mobile (short + wide) ── */
+    @media (max-height: 500px) and (orientation: landscape) {
+      #container {
+        padding: 4px;
+      }
+
+      .panel {
+        padding: 8px 14px;
+        border-radius: 18px;
+      }
+
+      .stage {
+        padding: 8px 12px;
+      }
+
+      .moon-gate {
+        padding: 10px 14px;
+        margin-bottom: 6px;
+      }
+
+      .moon-title {
+        font-size: clamp(1.1rem, 4vh, 1.6rem);
+        margin-bottom: 4px;
+      }
+
+      .moon-sub {
+        font-size: clamp(0.7rem, 2.5vh, 0.9rem);
+      }
+
+      .btn {
+        margin-top: 8px;
+        padding: 8px 20px;
+        min-height: 36px;
+        font-size: .78rem;
+      }
+
+      h1 {
+        font-size: clamp(1.2rem, 5vh, 2rem);
+        margin-bottom: 4px;
+      }
+
+      .candle {
+        font-size: 1.5rem;
+      }
+
+      .candle-row {
+        margin: 6px 0;
+      }
+
+      #cake {
+        font-size: clamp(3rem, 15vh, 5rem);
+      }
+
+      /* LANDSAT landscape */
+      #landsatStage {
+        gap: 6px;
+        padding: 6px 14px;
+        flex-direction: column;
+      }
+
+      .landsat-title {
+        font-size: clamp(0.9rem, 3.5vh, 1.3rem);
+      }
+
+      .landsat-subtitle {
+        font-size: clamp(0.65rem, 2vh, 0.8rem);
+      }
+
+      .landsat-badge {
+        padding: 4px 10px;
+        font-size: clamp(0.55rem, 1.5vh, 0.7rem);
+      }
+
+      .landsat-image-container {
+        max-height: 50vh;
+      }
+
+      .landsat-image-container img {
+        max-height: 50vh;
+      }
+
+      /* Starmap landscape: keep side-by-side */
+      .starmap-layout {
+        flex-direction: row;
+      }
+
+      .starmap-left {
+        flex: 0 0 30%;
+      }
+
+      .starmap-section-title {
+        font-size: clamp(0.9rem, 3.5vh, 1.3rem);
+      }
+
+      .starmap-right {
+        max-height: min(200px, 55vh);
+        gap: 5px;
+      }
+
+      .fact-card {
+        padding: 5px 8px 5px 12px;
+        font-size: clamp(0.6rem, 2vh, 0.75rem);
+      }
+
+      .fact-card-header {
+        padding: 6px 10px;
+        font-size: clamp(0.7rem, 2.5vh, 0.9rem);
+      }
+
+      .fact-card-mission,
+      .fact-card-final {
+        padding: 6px 10px;
+        font-size: clamp(0.58rem, 1.8vh, 0.72rem);
+      }
+
+      /* Celebration landscape */
+      .celebration-photo-container {
+        height: min(55vh, 45vw);
+        max-height: 58vh;
+      }
+
+      .celebration-title {
+        font-size: clamp(1.2rem, 5vh, 2rem);
+        margin-bottom: 4px;
+      }
+
+      .celebration-message {
+        font-size: clamp(0.7rem, 2vh, 0.9rem);
+        padding: 6px;
+      }
+
+      #celebrationStage {
+        gap: 8px;
+        padding: 6px 10px;
+      }
+
+      .sparkle-line {
+        margin-top: 4px;
+      }
+    }
+
+    /* ── Tall narrow phones (e.g. Galaxy Z Fold outer) ── */
+    @media (max-width: 300px) {
+      .starmap-left {
+        width: min(150px, 50vw);
+      }
+
+      .celebration-photo-container {
+        height: min(35vh, 60vw);
+      }
+
+      .landsat-image-container {
+        max-height: 34vh;
+      }
+
+      .landsat-image-container img {
+        max-height: 34vh;
       }
     }
 
@@ -891,6 +1549,7 @@
 
   <div id="container">
     <div class="panel">
+      <!-- STAGE 1: Intro -->
       <div id="introStage" class="stage active">
         <div class="moon-gate">
           <div class="moon-title">Moonlight Wish Gate</div>
@@ -900,6 +1559,7 @@
         <button id="startBtn" class="btn">Open the Gate ✨</button>
       </div>
 
+      <!-- STAGE 2: Candles -->
       <div id="candleStage" class="stage">
         <h1>🎂 Blow Out the Candles! 🎂</h1>
         <div class="candle-row">
@@ -913,21 +1573,70 @@
         <button id="blowBtn" class="btn">💨 BLOW! 💨</button>
       </div>
 
+      <!-- STAGE 3: Cake -->
       <div id="cakeStage" class="stage">
         <div id="cake">🎂</div>
         <h1>Make a Wish! ✨</h1>
         <p class="wish-text">Tap the cake to reveal the celebration.</p>
       </div>
 
+      <!-- STAGE 4: LANDSAT -->
+      <div id="landsatStage" class="stage">
+        <div class="landsat-badge">🛰️ NASA LANDSAT Satellite</div>
+        <div class="landsat-title">Your Name, Written in the Stars</div>
+        <div class="landsat-subtitle">This is how your name appears as seen from the LANDSAT satellite</div>
+        <div class="landsat-image-container">
+          <img src="LANDSAT.png" alt="Name as seen from LANDSAT satellite" />
+        </div>
+        <button id="landsatNextBtn" class="btn">Explore the Stars ✨</button>
+      </div>
+
+      <!-- STAGE 5: Star Map + Did You Know -->
+      <div id="starmapStage" class="stage">
+        <div class="starmap-section-title">🌌 The Sky on Your Birthday</div>
+        <div class="starmap-layout">
+          <div class="starmap-left">
+            <div class="starmap-image-wrap">
+              <img src="starmap.png" alt="Star map on July 16, 2003" />
+            </div>
+            <div class="starmap-label">July 16, 2003 — Night Sky</div>
+          </div>
+          <div class="starmap-right" id="factsContainer">
+            <div class="fact-card-header" id="factHeader">🎂 DID YOU KNOW?</div>
+            <div class="fact-card"><span class="fact-emoji">📅</span> Birthday: 16 July 2003</div>
+            <div class="fact-card"><span class="fact-emoji">⏳</span> You've been alive for approximately 1,200 weeks.</div>
+            <div class="fact-card"><span class="fact-emoji">❤️</span> Your heart has beaten roughly 850 million times.</div>
+            <div class="fact-card"><span class="fact-emoji">🌍</span> You've completed almost 23 trips around the Sun.</div>
+            <div class="fact-card"><span class="fact-emoji">🌅</span> You've witnessed about 8,400 sunrises.</div>
+            <div class="fact-card"><span class="fact-emoji">🌙</span> You've experienced about 280 full moons.</div>
+            <div class="fact-card"><span class="fact-emoji">💨</span> You've taken around 200 million breaths.</div>
+            <div class="fact-card"><span class="fact-emoji">👣</span> You've spent nearly 8,400 days creating memories.</div>
+            <div class="fact-card"><span class="fact-emoji">☀️</span> The Earth has carried you over 21 billion kilometers around the Sun.</div>
+            <div class="fact-card"><span class="fact-emoji">🌌</span> The night sky has changed every single day since the day you were born—just like your journey.</div>
+            <div class="fact-card-mission">
+              🚀 Mission Status: 22 Years Completed<br>
+              ⭐ Current Level: Legendary Human<br>
+              🎉 Achievement Unlocked: Another Orbit Around the Sun
+            </div>
+            <div class="fact-card-final">
+              ✨ Every heartbeat, every sunrise, every breath, and every orbit has made your story uniquely yours.<br><br>
+              <strong>Happy Birthday! 🎂💙</strong>
+            </div>
+          </div>
+        </div>
+        <button id="starmapNextBtn" class="btn">See Your Celebration 🎉</button>
+      </div>
+
+      <!-- STAGE 6: Final Celebration with Photo2 -->
       <div id="celebrationStage" class="stage">
         <div class="celebration-photo-container">
-          <img id="celebrationPhoto" src="photo2.jpeg" alt="Birthday photo">
+          <img id="celebrationPhoto" src="photo2.jpg" alt="Birthday photo">
         </div>
         <div class="celebration-content">
           <div class="celebration-title">🎉 Happy Birthday! 🎉</div>
           <p class="celebration-message">
             ✨ May your day be full of magic, laughter, joy, and unforgettable surprises.<br>
-            Here’s to a year that feels brighter, bigger, and more beautiful than ever.
+            Here's to a year that feels brighter, bigger, and more beautiful than ever.
           </p>
         </div>
       </div>
@@ -964,7 +1673,6 @@
           console.log('Video playing successfully');
         }).catch(e => {
           console.log('Video play failed:', e);
-          // Try with muted if autoplay fails
           if (!bgVideo.muted) {
             bgVideo.muted = true;
             bgVideo.play().catch(err => console.log('Muted video also failed:', err));
@@ -972,17 +1680,13 @@
         });
       }
     }
-    
-    // Try to play video immediately
+
     if (bgVideo) {
       bgVideo.load();
       playBgVideo();
     }
-    
-    // Try to play on load
+
     window.addEventListener('load', playBgVideo);
-    
-    // Also try to play on user interaction
     document.addEventListener('click', playBgVideo);
     document.addEventListener('touchstart', playBgVideo);
     document.addEventListener('keydown', playBgVideo);
@@ -1081,14 +1785,24 @@
       panel.classList.add('shake');
     }
 
+    // ═══════════════════════════════════════════════
+    //  STAGE TRANSITIONS
+    // ═══════════════════════════════════════════════
+
+    function switchStage(fromId, toId) {
+      document.getElementById(fromId).classList.remove('active');
+      document.getElementById(toId).classList.add('active');
+    }
+
+    // Stage 1 → Stage 2: Intro → Candles
     function startIntro() {
       playBirthdaySongNow();
-      document.getElementById('introStage').classList.remove('active');
-      document.getElementById('candleStage').classList.add('active');
+      switchStage('introStage', 'candleStage');
       burst(W * 0.5, H * 0.36, 'sparkle', mobile ? 16 : 26);
       playSound(0.09, 500, 0.18);
     }
 
+    // Blow candles one by one
     function blowNextCandle() {
       if (candleIndex >= candles.length) {
         clearInterval(candleTimer);
@@ -1106,9 +1820,9 @@
       candleIndex++;
     }
 
+    // Stage 2 → Stage 3: Candles → Cake
     function transitionToCake() {
-      document.getElementById('candleStage').classList.remove('active');
-      document.getElementById('cakeStage').classList.add('active');
+      switchStage('candleStage', 'cakeStage');
       const cakeStage = document.getElementById('cakeStage');
       ['💝', '⭐', '🌟', '💫', '✨', '🎁'].forEach((emo, i) => {
         const el = document.createElement('div');
@@ -1123,6 +1837,80 @@
       playSound(0.12, 520, 0.2);
     }
 
+    // Stage 3 → Stage 4: Cake → LANDSAT
+    function transitionToLandsat() {
+      switchStage('cakeStage', 'landsatStage');
+      burst(W * 0.5, H * 0.3, 'sparkle', mobile ? 18 : 30);
+      playSound(0.15, 600, 0.25);
+    }
+
+    // Stage 4 → Stage 5: LANDSAT → Starmap
+    function transitionToStarmap() {
+      switchStage('landsatStage', 'starmapStage');
+      burst(W * 0.5, H * 0.3, 'sparkle', mobile ? 12 : 20);
+      playSound(0.12, 550, 0.22);
+      // Start animating fact cards one by one
+      startFactCardAnimation();
+    }
+
+    // Fact cards animation — 1 second between each
+    let factAnimationTimers = [];
+    function startFactCardAnimation() {
+      // Clear any previous timers
+      factAnimationTimers.forEach(t => clearTimeout(t));
+      factAnimationTimers = [];
+
+      const container = document.getElementById('factsContainer');
+      const header = container.querySelector('.fact-card-header');
+      const cards = container.querySelectorAll('.fact-card');
+      const missionCard = container.querySelector('.fact-card-mission');
+      const finalCard = container.querySelector('.fact-card-final');
+
+      // All items in order
+      const allItems = [header, ...cards, missionCard, finalCard];
+      let delay = 0;
+
+      allItems.forEach((item, index) => {
+        const timer = setTimeout(() => {
+          item.classList.add('visible');
+          // Auto-scroll to keep new card visible
+          if (item.getBoundingClientRect) {
+            const rightPanel = container;
+            const itemOffset = item.offsetTop - rightPanel.offsetTop;
+            rightPanel.scrollTo({
+              top: itemOffset - 40,
+              behavior: 'smooth'
+            });
+          }
+        }, delay);
+        factAnimationTimers.push(timer);
+        delay += 1000; // 1 second between each
+      });
+    }
+
+    // Stage 5 → Stage 6: Starmap → Final Celebration
+    function transitionToCelebration() {
+      switchStage('starmapStage', 'celebrationStage');
+      const confettiBursts = mobile ? 5 : 7;
+      const perBurstCount = mobile ? 14 : 28;
+      const sparkleRuns = mobile ? 18 : 48;
+      for (let i = 0; i < confettiBursts; i++) {
+        setTimeout(() => burst(Math.random() * W, Math.random() * H * 0.5 + H * 0.08, 'confetti', perBurstCount), i * 120);
+      }
+      for (let i = 0; i < sparkleRuns; i++) {
+        setTimeout(() => burst(Math.random() * W, Math.random() * H, 'sparkle', mobile ? 3 : 5), i * 30);
+      }
+      burst(W * 0.5, H * 0.25, 'sparkle', mobile ? 14 : 24);
+      playSound(0.2, 680, 0.28);
+      animRunning = true;
+      animate();
+      launchDiscoGlitter();
+    }
+
+    // ═══════════════════════════════════════════════
+    //  EVENT LISTENERS
+    // ═══════════════════════════════════════════════
+
     document.getElementById('startBtn').addEventListener('click', startIntro);
 
     document.getElementById('blowBtn').addEventListener('click', () => {
@@ -1133,26 +1921,18 @@
       candleTimer = setInterval(blowNextCandle, 1000);
     });
 
+    // Cake tap → LANDSAT (instead of directly to celebration)
     document.addEventListener('click', (e) => {
       if (e.target.id === 'cake' || e.target.closest('#cake')) {
-        document.getElementById('cakeStage').classList.remove('active');
-        document.getElementById('celebrationStage').classList.add('active');
-        const confettiBursts = mobile ? 5 : 7;
-        const perBurstCount = mobile ? 14 : 28;
-        const sparkleRuns = mobile ? 18 : 48;
-        for (let i = 0; i < confettiBursts; i++) {
-          setTimeout(() => burst(Math.random() * W, Math.random() * H * 0.5 + H * 0.08, 'confetti', perBurstCount), i * 120);
-        }
-        for (let i = 0; i < sparkleRuns; i++) {
-          setTimeout(() => burst(Math.random() * W, Math.random() * H, 'sparkle', mobile ? 3 : 5), i * 30);
-        }
-        burst(W * 0.5, H * 0.25, 'sparkle', mobile ? 14 : 24);
-        playSound(0.2, 680, 0.28);
-        animRunning = true;
-        animate();
-        launchDiscoGlitter();
+        transitionToLandsat();
       }
     });
+
+    // LANDSAT next button
+    document.getElementById('landsatNextBtn').addEventListener('click', transitionToStarmap);
+
+    // Starmap next button
+    document.getElementById('starmapNextBtn').addEventListener('click', transitionToCelebration);
 
     function launchDiscoGlitter() {
       const stage = document.getElementById('celebrationStage');
