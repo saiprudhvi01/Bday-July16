@@ -128,6 +128,7 @@
     .panel {
       width: 100%;
       min-height: min(540px, calc(100dvh - 52px));
+      height: auto;
       padding: 32px 22px;
       border-radius: 34px;
       position: relative;
@@ -172,7 +173,7 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: flex-start;
+      justify-content: center;
       text-align: center;
       opacity: 0;
       transform: translateY(18px) scale(.98);
@@ -181,12 +182,6 @@
       overflow-y: auto;
       overflow-x: hidden;
       -webkit-overflow-scrolling: touch;
-    }
-
-    .stage::before,
-    .stage::after {
-      content: "";
-      margin: auto;
     }
 
     .stage.active {
@@ -951,10 +946,8 @@
 
     .celebration-photo-container {
       position: relative;
-      width: min(100vw, 100%);
-      max-width: 1100px;
-      height: min(55vh, 70vw);
-      max-height: 60vh;
+      width: min(92vw, 100%);
+      max-width: 600px;
       border-radius: 22px;
       overflow: hidden;
       animation: photoReveal 1.2s cubic-bezier(.2, 1.2, .2, 1);
@@ -964,7 +957,8 @@
 
     #celebrationPhoto {
       width: 100%;
-      height: 100%;
+      height: auto;
+      display: block;
       object-fit: contain;
       object-position: center center;
       animation: photoGlow 4s ease-in-out infinite;
@@ -1076,52 +1070,70 @@
         overflow: hidden;
       }
 
+      /* Hide body pseudo-elements on mobile so video shows */
+      body::before,
+      body::after {
+        display: none;
+      }
+
       #container {
         width: 100vw;
         height: 100vh;
         height: 100dvh;
-        padding: 6px;
+        padding: 0;
         min-height: 100vh;
         min-height: 100dvh;
-        padding-top: max(6px, env(safe-area-inset-top));
-        padding-bottom: max(6px, env(safe-area-inset-bottom));
-        padding-left: max(6px, env(safe-area-inset-left));
-        padding-right: max(6px, env(safe-area-inset-right));
+        padding-top: env(safe-area-inset-top);
+        padding-bottom: env(safe-area-inset-bottom);
+        padding-left: env(safe-area-inset-left);
+        padding-right: env(safe-area-inset-right);
       }
 
       .panel {
-        min-height: calc(100vh - 12px);
-        min-height: calc(100dvh - 12px);
-        min-height: calc(100dvh - max(6px, env(safe-area-inset-top)) - max(6px, env(safe-area-inset-bottom)));
-        padding: 10px 8px;
-        border-radius: 20px;
+        width: 100%;
+        height: 100%;
+        min-height: 0;
+        padding: 0;
+        border-radius: 0;
+        border: none;
+        background: rgba(0, 0, 0, 0.35);
+        backdrop-filter: blur(4px);
+        -webkit-backdrop-filter: blur(4px);
+        box-shadow: none;
         display: flex;
         flex-direction: column;
       }
 
+      .panel::before {
+        display: none;
+      }
+
       .stage {
-        padding: 10px 8px;
+        padding: 16px 12px;
+        justify-content: center;
+        border-radius: 0;
       }
 
       .moon-gate {
-        width: 100%;
-        padding: 14px 10px 12px;
-        border-radius: 16px;
+        width: 92%;
+        padding: 16px 14px 14px;
+        border-radius: 20px;
         margin-bottom: 10px;
       }
 
       .moon-title {
-        font-size: clamp(1.4rem, 7vw, 2.3rem);
+        font-size: clamp(1.5rem, 7vw, 2.3rem);
       }
 
       .moon-sub {
-        font-size: clamp(.82rem, 3.5vw, 1rem);
-        line-height: 1.35;
+        font-size: clamp(.85rem, 3.5vw, 1rem);
+        line-height: 1.4;
       }
 
       h1 {
         font-size: clamp(1.5rem, 6.5vw, 2.4rem);
         margin-bottom: 8px;
+        text-shadow: 0 2px 12px rgba(0,0,0,0.8);
       }
 
       p {
@@ -1131,71 +1143,71 @@
       }
 
       .btn {
-        margin-top: 14px;
-        padding: 12px 20px;
-        font-size: .85rem;
-        min-width: 150px;
-        min-height: 42px;
+        margin-top: 16px;
+        padding: 14px 24px;
+        font-size: .88rem;
+        min-width: 160px;
+        min-height: 44px;
         letter-spacing: 1px;
       }
 
       .candle {
-        font-size: 2rem;
+        font-size: 2.2rem;
       }
 
       .candle-row {
-        gap: 8px;
-        margin: 12px 0;
+        gap: 10px;
+        margin: 14px 0;
       }
 
       #cake {
-        font-size: clamp(4rem, 18vw, 6rem);
+        font-size: clamp(5rem, 22vw, 7rem);
       }
 
       /* LANDSAT mobile */
       #landsatStage {
-        gap: clamp(8px, 1.5vh, 14px);
-        padding: clamp(10px, 2vh, 20px) 10px;
+        gap: clamp(10px, 2vh, 16px);
+        padding: 16px 12px;
       }
 
       .landsat-title {
-        font-size: clamp(1.1rem, 5.5vw, 1.6rem);
-        margin-bottom: 2px;
+        font-size: clamp(1.2rem, 5.5vw, 1.8rem);
+        margin-bottom: 4px;
       }
 
       .landsat-subtitle {
-        font-size: clamp(0.72rem, 3vw, 0.9rem);
+        font-size: clamp(0.75rem, 3.2vw, 0.95rem);
         margin-bottom: 4px;
       }
 
       .landsat-badge {
-        padding: 5px 12px;
-        font-size: clamp(0.62rem, 2.5vw, 0.78rem);
-        gap: 5px;
+        padding: 6px 14px;
+        font-size: clamp(0.65rem, 2.5vw, 0.8rem);
+        gap: 6px;
       }
 
       .landsat-image-container {
-        width: min(100%, 92vw);
-        max-height: 42vh;
-        border-radius: 14px;
+        width: min(88vw, 100%);
+        max-height: 45vh;
+        border-radius: 16px;
       }
 
       .landsat-image-container img {
-        max-height: 42vh;
+        max-height: 45vh;
       }
 
       .landsat-image-container::before {
-        border-radius: 16px;
+        border-radius: 18px;
       }
 
       /* Starmap mobile: stack vertically */
       #starmapStage {
-        gap: clamp(6px, 1.2vh, 12px);
-        padding: clamp(8px, 1.5vh, 16px) 8px;
+        gap: clamp(8px, 1.5vh, 14px);
+        padding: 12px 10px;
       }
 
       .starmap-section-title {
-        font-size: clamp(1rem, 5vw, 1.5rem);
+        font-size: clamp(1.1rem, 5vw, 1.6rem);
       }
 
       .starmap-layout {
@@ -1206,110 +1218,102 @@
 
       .starmap-left {
         flex: none;
-        width: min(220px, 60vw);
+        width: min(200px, 55vw);
       }
 
       .starmap-image-wrap {
-        border-radius: 12px;
-      }
-
-      .starmap-image-wrap::before {
         border-radius: 14px;
       }
 
+      .starmap-image-wrap::before {
+        border-radius: 16px;
+      }
+
       .starmap-label {
-        font-size: clamp(0.6rem, 2.5vw, 0.72rem);
+        font-size: clamp(0.62rem, 2.5vw, 0.75rem);
         margin-top: 4px;
       }
 
       .starmap-right {
-        max-height: min(240px, 35vh);
+        max-height: min(220px, 32vh);
         width: 100%;
         gap: 6px;
       }
 
       .fact-card {
-        font-size: clamp(0.68rem, 3vw, 0.82rem);
-        padding: 7px 10px 7px 14px;
-        border-radius: 10px;
+        font-size: clamp(0.7rem, 3vw, 0.85rem);
+        padding: 8px 10px 8px 14px;
+        border-radius: 12px;
       }
 
       .fact-card-header {
-        font-size: clamp(0.78rem, 3.5vw, 0.95rem);
-        padding: 8px 12px;
-        border-radius: 10px;
+        font-size: clamp(0.82rem, 3.8vw, 1rem);
+        padding: 9px 14px;
+        border-radius: 12px;
       }
 
       .fact-card-mission {
-        font-size: clamp(0.65rem, 2.8vw, 0.78rem);
-        padding: 8px 12px;
-        border-radius: 10px;
+        font-size: clamp(0.68rem, 2.8vw, 0.8rem);
+        padding: 9px 14px;
+        border-radius: 12px;
         line-height: 1.5;
       }
 
       .fact-card-final {
-        font-size: clamp(0.68rem, 3vw, 0.85rem);
-        padding: 8px 12px;
-        border-radius: 10px;
+        font-size: clamp(0.7rem, 3vw, 0.88rem);
+        padding: 9px 14px;
+        border-radius: 12px;
       }
 
       /* Celebration mobile */
       .celebration-title {
-        font-size: clamp(1.6rem, 7vw, 2.4rem);
+        font-size: clamp(1.8rem, 8vw, 2.6rem);
         margin-bottom: 8px;
       }
 
       .celebration-message {
-        font-size: clamp(.82rem, 3.2vw, 1rem);
-        line-height: 1.45;
-        padding: 8px;
-        border-radius: 14px;
-      }
-
-      .celebration-photo-container {
-        width: min(90vw, 100%);
-        height: min(45vh, 70vw);
-        max-height: 50vh;
+        font-size: clamp(.85rem, 3.5vw, 1.05rem);
+        line-height: 1.5;
+        padding: 10px;
         border-radius: 16px;
       }
 
+      .celebration-photo-container {
+        width: min(85vw, 100%);
+        max-width: 400px;
+        border-radius: 18px;
+      }
+
       #celebrationStage {
-        gap: clamp(10px, 2vh, 18px);
-        padding: clamp(8px, 1.5vh, 16px) 10px;
+        gap: clamp(12px, 2vh, 20px);
+        padding: 16px 12px;
       }
 
       .celebration-content {
-        padding: 0 6px;
+        padding: 0 10px;
       }
 
       .float-element {
-        font-size: 1rem;
+        font-size: 1.1rem;
       }
 
       .sparkle-line {
-        width: min(240px, 68vw);
+        width: min(260px, 72vw);
         margin-top: 8px;
       }
     }
 
     /* ── Ultra small phones (320px, iPhone SE, etc.) ── */
     @media (max-width: 380px) {
-      #container {
-        padding: 4px;
-      }
-
-      .panel {
-        padding: 8px 6px;
-        border-radius: 16px;
-      }
 
       .stage {
-        padding: 8px 6px;
+        padding: 10px 6px;
       }
 
       .moon-gate {
-        padding: 10px 8px;
-        border-radius: 14px;
+        width: 88%;
+        padding: 12px 10px;
+        border-radius: 16px;
       }
 
       .moon-title {
@@ -1349,11 +1353,11 @@
       }
 
       .starmap-left {
-        width: min(180px, 55vw);
+        width: min(160px, 50vw);
       }
 
       .starmap-right {
-        max-height: min(200px, 32vh);
+        max-height: min(180px, 30vh);
         gap: 5px;
       }
 
@@ -1363,8 +1367,8 @@
       }
 
       .celebration-photo-container {
-        height: min(40vh, 65vw);
-        max-height: 42vh;
+        width: min(80vw, 100%);
+        max-width: 300px;
       }
 
       .celebration-title {
