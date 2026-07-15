@@ -1119,6 +1119,21 @@
         min-width: 120px;
       }
     }
+    @keyframes emojiRain {
+  0% {
+    transform: translateY(-30px) rotate(0deg);
+    opacity: 0;
+  }
+
+  10% {
+    opacity: 1;
+  }
+
+  100% {
+    transform: translate(var(--drift), 110vh) rotate(540deg);
+    opacity: 0;
+  }
+}
 
     /* Loading screen */
     #loadingScreen {
@@ -1312,7 +1327,6 @@
         </div>
         <div class="celebration-content">
           <div class="celebration-title">Happy Birthday!</div>
-          <p class="celebration-message">Happy Birthday!</p>
         </div>
       </div>
     </div>
@@ -1406,10 +1420,48 @@
       candle.classList.add('blown'); shakePanel(); playSound(0.07, 260, 0.12); vibrateIfPossible(20); candleIndex++;
     }
     function transitionToCake() {
-      setVideoMode('cake'); switchStage('candleStage', 'cakeStage');
-      ['💝', '⭐', '🌟', '💫', '✨', '🎁'].forEach((emo, i) => { const el = document.createElement('div'); el.textContent = emo; el.style.cssText = `position:absolute; left:${15 + i * 12}%; bottom:${10 + (i % 3) * 8}%; font-size:2rem; animation:floatBadge 1.8s ease-in-out infinite ${i * 0.2}s; pointer-events:none;`; document.getElementById('cakeStage').appendChild(el); });
-      burst(W * 0.5, H * 0.5, 'sparkle', mobile ? 12 : 20); playSound(0.1, 520, 0.2);
+  setVideoMode('cake');
+  switchStage('candleStage', 'cakeStage');
+
+  const stage = document.getElementById('cakeStage');
+  const emojis = ['💝', '⭐', '🌟', '💫', '✨', '🎁'];
+
+  function spawnEmoji() {
+    const el = document.createElement('div');
+    el.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+
+    const size = 24 + Math.random() * 18;
+    const duration = 3 + Math.random() * 2;
+    const drift = (Math.random() - 0.5) * 120;
+
+    el.style.cssText = `
+      position:absolute;
+      left:${Math.random() * 100}%;
+      top:-50px;
+      font-size:${size}px;
+      pointer-events:none;
+      z-index:100;
+      --drift:${drift}px;
+      animation:emojiRain ${duration}s linear forwards;
+    `;
+
+    stage.appendChild(el);
+
+    el.addEventListener('animationend', () => el.remove());
+  }
+
+  // Create rain for 6 seconds
+  const rain = setInterval(() => {
+    for (let i = 0; i < 3; i++) {
+      spawnEmoji();
     }
+  }, 200);
+
+  setTimeout(() => clearInterval(rain), 6000);
+
+  burst(W * 0.5, H * 0.5, 'sparkle', mobile ? 12 : 20);
+  playSound(0.1, 520, 0.2);
+}
 
     // Transitions
     function startIntro() { playBirthdaySongNow(); setVideoMode('candle'); switchStage('introStage', 'candleStage'); burst(W * 0.5, H * 0.3, 'sparkle', mobile ? 14 : 22); playSound(0.08, 500, 0.16); vibrateIfPossible(16); }
