@@ -860,8 +860,11 @@
       flex-direction: column;
       align-items: center;
       justify-content: flex-start;
-      gap: clamp(8px, 1.5vh, 16px);
+      gap: clamp(10px, 1.8vh, 16px);
       padding: clamp(12px, 2.5vh, 24px) clamp(8px, 2vw, 16px);
+      overflow-y: auto;
+      overflow-x: hidden;
+      max-height: 100%;
     }
 
     .starmap-section-title {
@@ -880,23 +883,23 @@
     .starmap-layout {
       display: grid;
       grid-template-columns: 1fr;
-      gap: 18px;
+      gap: 14px;
       width: min(100%, 980px);
       align-items: stretch;
     }
 
     .starmap-hero {
       display: grid;
-      grid-template-columns: minmax(260px, 0.95fr) minmax(300px, 1.05fr);
-      gap: 18px;
+      grid-template-columns: 1fr;
+      gap: 12px;
       width: 100%;
-      align-items: center;
+      align-items: start;
     }
 
     .starmap-left {
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: 10px;
       min-width: 0;
       min-height: 0;
     }
@@ -912,10 +915,10 @@
       background:
         radial-gradient(circle at top, rgba(131, 56, 236, 0.18), transparent 38%),
         linear-gradient(145deg, rgba(13, 13, 33, 0.96), rgba(18, 48, 88, 0.86));
-      min-height: clamp(280px, 46vh, 540px);
+      min-height: clamp(220px, 32vh, 360px);
       display: grid;
       place-items: center;
-      padding: clamp(12px, 2vw, 20px);
+      padding: clamp(10px, 1.8vw, 16px);
     }
 
     .starmap-image-wrap::before {
@@ -976,10 +979,11 @@
     .zoom-controls button:active { transform: translateY(1px) scale(.99); }
 
     .starmap-label {
-      text-align: left;
-      font-size: clamp(0.78rem, 1.6vw, 0.92rem);
-      color: rgba(255, 255, 255, 0.76);
-      letter-spacing: 0.08em;
+      text-align: center;
+      font-size: clamp(0.72rem, 1.8vw, 0.86rem);
+      line-height: 1.45;
+      color: rgba(255, 255, 255, 0.88);
+      letter-spacing: 0.06em;
       text-transform: uppercase;
       font-weight: 700;
     }
@@ -988,7 +992,7 @@
       display: flex;
       flex-direction: column;
       justify-content: center;
-      gap: 12px;
+      gap: 10px;
       min-width: 0;
     }
 
@@ -1063,28 +1067,28 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      min-height: 220px;
+      min-height: 150px;
     }
 
     .fact-card {
-      padding: 22px 24px;
+      padding: 16px 18px;
       color: rgba(255, 255, 255, 0.94);
-      font-size: clamp(0.95rem, 1.8vw, 1.08rem);
-      line-height: 1.65;
+      font-size: clamp(0.92rem, 1.7vw, 1.05rem);
+      line-height: 1.6;
       opacity: 0;
       transform: translateY(18px) rotate(1deg) scale(0.96);
       transition: opacity 0.55s cubic-bezier(.2,.8,.2,1), transform 0.55s cubic-bezier(.2,.8,.2,1);
       position: relative;
       overflow: hidden;
-      min-height: 180px;
-      width: min(100%, 460px);
+      min-height: 116px;
+      width: min(100%, 100%);
       pointer-events: none;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       text-align: center;
-      gap: 10px;
+      gap: 8px;
       box-shadow: 0 8px 24px rgba(0,0,0,0.24);
     }
 
@@ -1299,11 +1303,19 @@
     }
 
     /* CELEBRATION STAGE (Photo2) */
+    #celebrationStage {
+      justify-content: center;
+      align-items: center;
+      min-height: min(78vh, 760px);
+      padding: clamp(18px, 3vh, 30px) clamp(10px, 3vw, 22px);
+    }
+
     .celebration-photo-container {
       width: 100%;
       display: flex;
       justify-content: center;
-      margin-bottom: clamp(18px, 3.2vw, 26px);
+      align-items: center;
+      margin-bottom: clamp(16px, 2.4vw, 22px);
     }
 
     .celebration-photo-container img {
@@ -1319,7 +1331,7 @@
 
     .celebration-content {
       width: 100%;
-      max-width: 520px;
+      max-width: 560px;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -1613,8 +1625,8 @@
       <!-- STAGE 4: LANDSAT -->
       <div id="landsatStage" class="stage">
         <div class="landsat-badge">🛰️ NASA LANDSAT Satellite</div>
-        <div class="landsat-title">Your Name, Written in the Stars</div>
-        <div class="landsat-subtitle">This is how your name appears as seen from the LANDSAT satellite</div>
+        <div class="landsat-title">A Satellite-Inspired Birthday Tribute</div>
+        <div class="landsat-subtitle">This is a stylized tribute to your name in a bright orbital-style view, not a literal scientific map.</div>
         <div class="landsat-image-container">
           <div class="landsat-viewer-top">
             <div class="landsat-status-pill">🛰️ High-detail orbital scan</div>
@@ -1622,7 +1634,7 @@
           </div>
           <div class="landsat-scroll-shell" aria-label="Scrollable Landsat image viewer">
             <div class="landsat-image-stage">
-              <img src="LANDSAT.png" alt="Name as seen from LANDSAT satellite" />
+              <img src="LANDSAT.png" alt="Stylized satellite-inspired birthday tribute" />
             </div>
           </div>
           <div class="landsat-viewer-bottom">
@@ -1639,7 +1651,7 @@
         <div class="starmap-layout">
           <div class="starmap-hero">
             <div class="starmap-left">
-              <div class="starmap-label">Instead of squeezing the sky map, it is now shown as a dedicated visual card.</div>
+              <div class="starmap-label">A dedicated sky card for your birthday, with the story blocks kept clear and readable.</div>
               <div class="starmap-image-wrap">
                 <img src="starmap.png" alt="Star map on July 16, 2003" />
                 <div class="zoom-controls" aria-hidden="false">
@@ -1648,7 +1660,7 @@
                   <button id="zoomResetBtn" title="Reset zoom">⤾</button>
                 </div>
               </div>
-              <div class="starmap-label">July 16, 2003 — Night Sky snapshot with the story cards placed separately for better readability.</div>
+              <div class="starmap-label">The image and the birthday notes are separated so everything stays easy to read.</div>
             </div>
             <div class="starmap-hero-copy">
               <div id="factsContainer" class="starmap-facts-ribbon">
@@ -1688,10 +1700,7 @@
         </div>
         <div class="celebration-content">
           <div class="celebration-title">🎉 Happy Birthday! 🎉</div>
-          <p class="celebration-message">
-            ✨ May your day be full of magic, laughter, joy, and unforgettable surprises.<br>
-            Here's to a year that feels brighter, bigger, and more beautiful than ever.
-          </p>
+          <p class="celebration-message">Happy Birthday!</p>
         </div>
       </div>
     </div>
@@ -1985,9 +1994,9 @@
 
     function typeCelebrationMessage() {
       const lines = [
-        'Happy Birthday...',
-        'May your day be full of magic, laughter, and joy.',
-        'Created with ❤️ for you.'
+        'Happy Birthday!',
+        'Wishing you joy, laughter, and beautiful surprises today.',
+        'May this year bring you endless happiness and lovely moments.'
       ];
       const container = document.querySelector('.celebration-content');
       if (!container) return;
