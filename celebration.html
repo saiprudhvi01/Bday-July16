@@ -132,7 +132,7 @@
       position: relative;
       z-index: 5;
       width: min(900px, 100%);
-      min-height: 100%;
+      min-height: 100dvh;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -143,7 +143,10 @@
     .panel {
       width: 100%;
       height: auto;
-      min-height: auto;
+      min-height: min(84dvh, 760px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
       padding: clamp(16px, 4vw, 32px);
       border-radius: clamp(20px, 4vw, 34px);
       position: relative;
@@ -208,7 +211,7 @@
       display: none;
       flex-direction: column;
       align-items: center;
-      justify-content: flex-start;
+      justify-content: center;
       text-align: center;
       opacity: 0;
       transform: translateY(18px) scale(.97);
@@ -1060,17 +1063,20 @@
 
     .fact-rotator {
       position: relative;
-      min-height: auto;
+      min-height: 170px;
       width: 100%;
-      overflow: visible;
+      overflow: hidden;
       border-radius: 20px;
       display: flex;
       align-items: center;
       justify-content: center;
-      min-height: 150px;
     }
 
-    .fact-card {
+    .fact-card,
+    .fact-card-mission,
+    .fact-card-final {
+      position: absolute;
+      inset: 0;
       padding: 16px 18px;
       color: rgba(255, 255, 255, 0.94);
       font-size: clamp(0.92rem, 1.7vw, 1.05rem);
@@ -1078,10 +1084,9 @@
       opacity: 0;
       transform: translateY(18px) rotate(1deg) scale(0.96);
       transition: opacity 0.55s cubic-bezier(.2,.8,.2,1), transform 0.55s cubic-bezier(.2,.8,.2,1);
-      position: relative;
       overflow: hidden;
       min-height: 116px;
-      width: min(100%, 100%);
+      width: 100%;
       pointer-events: none;
       display: flex;
       flex-direction: column;
@@ -1092,9 +1097,12 @@
       box-shadow: 0 8px 24px rgba(0,0,0,0.24);
     }
 
-    .fact-card.visible {
+    .fact-card.visible,
+    .fact-card-mission.visible,
+    .fact-card-final.visible {
       opacity: 1;
       transform: translateY(0) rotate(0deg) scale(1);
+      z-index: 2;
     }
 
     /* Improve contrast and readability for fact cards */
@@ -1144,8 +1152,8 @@
     .fact-card:nth-child(9)::before { background: linear-gradient(180deg, #ff6b35, #8338ec); }
     .fact-card:nth-child(10)::before { background: linear-gradient(180deg, #8338ec, #ffd93d); }
 
-    .fact-card .fact-emoji {
-      margin-right: 6px;
+    .fact-emoji {
+      display: none;
     }
 
     .fact-card-mission,
@@ -1603,7 +1611,7 @@
 
       <!-- STAGE 2: Candles -->
       <div id="candleStage" class="stage">
-        <h1>🎂 Blow Out the Candles! 🎂</h1>
+        <h1>Blow Out the Candles</h1>
         <div class="candle-row">
           <span class="candle">🕯️</span>
           <span class="candle">🕯️</span>
@@ -1618,7 +1626,7 @@
       <!-- STAGE 3: Cake -->
       <div id="cakeStage" class="stage">
         <div id="cake">🎂</div>
-        <h1>Make a Wish! ✨</h1>
+        <h1>Make a Wish</h1>
         <p class="wish-text">Tap the cake to reveal the celebration.</p>
       </div>
 
@@ -1647,7 +1655,7 @@
 
       <!-- STAGE 5: Star Map + Did You Know -->
       <div id="starmapStage" class="stage">
-        <div class="starmap-section-title">🌌 The Sky on Your Birthday</div>
+        <div class="starmap-section-title">The Sky on Your Birthday</div>
         <div class="starmap-layout">
           <div class="starmap-hero">
             <div class="starmap-left">
@@ -1699,7 +1707,7 @@
           <img id="celebrationPhoto" src="photo2.jpg" alt="Birthday photo">
         </div>
         <div class="celebration-content">
-          <div class="celebration-title">🎉 Happy Birthday! 🎉</div>
+          <div class="celebration-title">Happy Birthday!</div>
           <p class="celebration-message">Happy Birthday!</p>
         </div>
       </div>
@@ -1865,7 +1873,6 @@
       if (toStage) {
         toStage.classList.add('active');
         requestAnimationFrame(() => {
-          toStage.scrollIntoView({ behavior: 'smooth', block: 'start' });
           if (typeof toStage.focus === 'function') {
             toStage.focus({ preventScroll: true });
           }
@@ -1948,25 +1955,29 @@
 
       const container = document.getElementById('factsContainer');
       if (!container) return;
-      const cards = container.querySelectorAll('.fact-card');
+      const cards = [...container.querySelectorAll('.fact-card, .fact-card-mission, .fact-card-final')];
       const header = container.querySelector('.fact-card-header');
       if (header) header.classList.add('visible');
 
+      cards.forEach((card) => card.classList.remove('visible'));
+
+      let currentIndex = 0;
+      const showNextCard = () => {
+        cards.forEach((card) => card.classList.remove('visible'));
+        if (cards[currentIndex]) {
+          cards[currentIndex].classList.add('visible');
+        }
+        currentIndex = (currentIndex + 1) % cards.length;
+      };
+
       cards.forEach((card, index) => {
-        card.classList.remove('visible');
         const timer = setTimeout(() => {
-          card.classList.add('visible');
+          if (index === 0) showNextCard();
         }, 400 + index * 2600);
         factAnimationTimers.push(timer);
       });
 
-      const cycleTimer = setInterval(() => {
-        const visibleCards = [...cards].filter(card => card.classList.contains('visible'));
-        if (!visibleCards.length) return;
-        visibleCards.forEach(card => card.classList.remove('visible'));
-        const nextIndex = (Array.from(cards).indexOf(visibleCards[visibleCards.length - 1]) + 1) % cards.length;
-        cards[nextIndex].classList.add('visible');
-      }, 2600);
+      const cycleTimer = setInterval(showNextCard, 2600);
       factAnimationTimers.push(cycleTimer);
     }
 
